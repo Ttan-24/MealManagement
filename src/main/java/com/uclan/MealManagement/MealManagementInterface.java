@@ -70,6 +70,7 @@ public class MealManagementInterface extends JFrame {
 	private JLabel SuggestedRecipesLabel;
 	private JTextField SearchRecipeTextField;
 	private JPanel RecipeFinderPanel;
+	private JLabel SearchedRecipesLabel;
 
 	public static void deleteAllRows(final DefaultTableModel model) {
 		for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -695,14 +696,19 @@ public class MealManagementInterface extends JFrame {
 				// if textfield > 0 then connect the api and upload the text in the textlabel
 				
 				if (SearchRecipeTextField.getText() != null) {
-					
+					try {
+						APIManager.getAPI(SearchRecipeTextField.getText(), SearchedRecipesLabel);
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
 		SearchButton.setBounds(688, 42, 89, 40);
 		RecipeFinderPanel.add(SearchButton);
 		
-		JLabel SearchedRecipesLabel = new JLabel("Recipes Found: ");
+		SearchedRecipesLabel = new JLabel("Recipes Found: ");
 		SearchedRecipesLabel.setVerticalAlignment(SwingConstants.TOP);
 		SearchedRecipesLabel.setBounds(43, 125, 635, 349);
 		RecipeFinderPanel.add(SearchedRecipesLabel);
