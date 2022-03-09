@@ -10,13 +10,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JLabel;
 
 import org.json.*;
 
 public class APIManager {
+	static ArrayList<String> generalIngredients = new ArrayList<String>();
+	
+	APIManager()
+	{
+		// Get generalised ingredients
+		generalIngredients.add("butter");
+		generalIngredients.add("onion");
+		generalIngredients.add("sugar");
+		generalIngredients.add("carrots");
+		generalIngredients.add("spinach");
+		generalIngredients.add("salt");
+	}
+	
 	public static void getAPI(String textField, JLabel label) throws Exception {
+		
+		// Get response from API
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create("https://tasty.p.rapidapi.com/recipes/list?from=0&size=20&tags=under_30_minutes"))
 				.header("x-rapidapi-host", "tasty.p.rapidapi.com")
@@ -27,38 +43,54 @@ public class APIManager {
 		System.out.println(response.body());
 		label.setText(response.body());
 		
-		String displayName = "Recipes: ";
-		
+		// Get root JSON
 		String jsonString = response.body();
-	    JSONObject jsonObject = new JSONObject(jsonString);  
-		JSONArray jArray = jsonObject.getJSONArray("results");
-		if (jArray != null) { 
-		   for (int i=0; i<jArray.length(); i++){ 
-		    JSONObject recipeJson = jArray.getJSONObject(i);
-		    String name = recipeJson.getString("name");
-		    displayName += name + ", ";
+	    JSONObject rootJSON = new JSONObject(jsonString);  
+	    
+	    // Get recipe array
+		JSONArray recipeArray = rootJSON.getJSONArray("results");
+		
+		// Iterate through recipe array
+		if (recipeArray != null) { 
+		   for (int i=0; i<recipeArray.length(); i++){ 
+			// Get recipe JSON
+		    JSONObject recipeJson = recipeArray.getJSONObject(i);
 		    
-		    System.out.print(name + ": ");
+		    // Add recipe to database
+		    String recipeName = recipeJson.getString("name");
+		    SQLManager.AddRecipeQuery(recipeName);
 		    
 		    // Get recipe details
 		    JSONArray sections = recipeJson.getJSONArray("sections");
 		    JSONObject section = sections.getJSONObject(0);
 	    	JSONArray components = section.getJSONArray("components");
 	    	
+	    	
 	    	// Look at each ingredient/component
 		    for (int j = 0; j < components.length(); j++) {
+		    	// Get ingredient name
 		    	JSONObject component = components.getJSONObject(j);
 			    JSONObject ingredient = component.getJSONObject("ingredient");
 			    String ingredientName = ingredient.getString("name");
+			    
+			    // Make into general ingredient
+			    for (int k = 0; k < generalIngredients.size(); k++)
+				{
+					String generalIngredient = generalIngredients.get(k);
+					if (ingredientName.contains(generalIngredient))
+					{
+						ingredientName = generalIngredient;
+					}
+				}
+			    
+			    // Add ingredient to SQL database
 			    System.out.print(ingredientName + ", ");
+			    SQLManager.AddIngredientsFromList(ingredientName, SQLManager.RecipeID());
 		    }
-		    
 		    System.out.println();
-		    
 		   } 
 		} 
 		
-		label.setText(displayName);
 		
 //		if (response.statusCode() == 200) {
 //            System.out.println("The API has connected succssfully");

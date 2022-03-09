@@ -604,7 +604,7 @@ public class MealManagementInterface extends JFrame {
 						SQLManager.populateTableWithResultSetWithCheckBox(RecipeTable, rsRecipeQuery, mUserID);
 
 						// add a new column dynamically
-						RecipeTableModel.addColumn("Favorite", new Object[] { false, false, true });
+						//RecipeTableModel.addColumn("Favorite", new Object[] { false, false, true });
 						RecipeTable.setModel(RecipeTableModel);
 						RecipeNameTextField.setText("");
 						// delete all row in the ingredient jtable and arraylist
