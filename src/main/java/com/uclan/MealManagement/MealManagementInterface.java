@@ -71,6 +71,7 @@ public class MealManagementInterface extends JFrame {
 	private JTextField SearchRecipeTextField;
 	private JPanel RecipeFinderPanel;
 	private JLabel SearchedRecipesLabel;
+	private JTextField MealTimeTextField;
 
 	public static void deleteAllRows(final DefaultTableModel model) {
 		for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -88,12 +89,21 @@ public class MealManagementInterface extends JFrame {
 			Recipe EachRecipe = RecipeList.get(i);
 			System.out.println("Checking if we can make" + EachRecipe.mName);
 			boolean canMakeRecipe = true;
+			
+			boolean StopHere = false;
+			if (EachRecipe.mName == "Hawaii Rice Dish")
+			{
+				boolean stopHere = true;
+				StopHere = true;
+			}
 
 			// looking through each ingredients in the each recipe
 			for (int j = 0; j < EachRecipe.IngredientList.size(); j++) {
 
 				String EachIngredient = EachRecipe.IngredientList.get(j);
 
+				
+				
 				System.out.println("do I have?: " + EachIngredient);
 				boolean foundItem = false;
 
@@ -333,13 +343,13 @@ public class MealManagementInterface extends JFrame {
 				for (int i = 0; i < mPossibleRecipes.size(); i++) {
 					String RecipeName = mPossibleRecipes.get(i).mName;
 					String mealTime = mPossibleRecipes.get(i).mMealTime;
-					if ("Breakfast".equals(mealTime)) {
+					if ("breakfast".equals(mealTime)) {
 						BreakfastList.add(RecipeName);
 					}
-					if ("Lunch".equals(mealTime)) {
+					if ("lunch".equals(mealTime)) {
 						LunchList.add(RecipeName);
 					}
-					if ("Dinner".equals(mealTime)) {
+					if ("dinner".equals(mealTime)) {
 						DinnerList.add(RecipeName);
 					}
 				}
@@ -357,9 +367,9 @@ public class MealManagementInterface extends JFrame {
 				// MealPlanTable.setValueAt("Dinner", i, j);
 				// }
 				// }
-				MealPlanTable.setValueAt("Breakfast", 0, 0);
-				MealPlanTable.setValueAt("Lunch", 1, 0);
-				MealPlanTable.setValueAt("Dinner", 2, 0);
+				MealPlanTable.setValueAt("breakfast", 0, 0);
+				MealPlanTable.setValueAt("lunch", 1, 0);
+				MealPlanTable.setValueAt("dinner", 2, 0);
 				int maxColumn = 8;
 				int maxRow = 3;
 
@@ -592,7 +602,7 @@ public class MealManagementInterface extends JFrame {
 
 					try {
 						// add recipe
-						SQLManager.AddRecipeQuery(RecipeNameTextField.getText());
+						SQLManager.AddRecipeQuery(RecipeNameTextField.getText(), MealTimeTextField.getText());
 						// get the recipeid of the new recipe
 
 						// add ingredients with the recipeid of the new recipe
@@ -622,11 +632,11 @@ public class MealManagementInterface extends JFrame {
 
 		IngredientNameTextField = new JTextField();
 		IngredientNameTextField.setColumns(10);
-		IngredientNameTextField.setBounds(207, 459, 115, 25);
+		IngredientNameTextField.setBounds(165, 459, 115, 25);
 		RecipePanel.add(IngredientNameTextField);
 
 		JLabel IngredientNameLabel = new JLabel("Ingredient Name");
-		IngredientNameLabel.setBounds(207, 419, 115, 29);
+		IngredientNameLabel.setBounds(165, 419, 115, 29);
 		RecipePanel.add(IngredientNameLabel);
 
 		IngredientScrollPane = new JScrollPane();
@@ -657,12 +667,21 @@ public class MealManagementInterface extends JFrame {
 				}
 			}
 		});
-		AddIngredientsButton.setBounds(334, 460, 121, 23);
+		AddIngredientsButton.setBounds(289, 460, 121, 23);
 		RecipePanel.add(AddIngredientsButton);
 
 		SuggestedRecipesLabel = new JLabel("Suggested Recipes");
 		SuggestedRecipesLabel.setBounds(34, 26, 711, 29);
 		RecipePanel.add(SuggestedRecipesLabel);
+		
+		MealTimeTextField = new JTextField();
+		MealTimeTextField.setBounds(420, 461, 113, 23);
+		RecipePanel.add(MealTimeTextField);
+		MealTimeTextField.setColumns(10);
+		
+		JLabel MealTimeLabel = new JLabel("Meal Time");
+		MealTimeLabel.setBounds(418, 426, 115, 29);
+		RecipePanel.add(MealTimeLabel);
 
 		JPanel FavouritePanel = new JPanel();
 		ViewPanel.add(FavouritePanel, "FavouriteViewPanel");

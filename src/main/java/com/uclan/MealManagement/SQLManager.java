@@ -182,14 +182,14 @@ public class SQLManager {
 		}
 	}
 
-	public static void AddRecipeQuery(String RecipeName) throws Exception {
+	public static void AddRecipeQuery(String RecipeName, String mealTime) throws Exception {
 		String query = "";
 		try {
 			// Connection
 			Connection getConnection = getConnection();
 
 //			query = "INSERT INTO store_db.recipe (recipeName) VALUES ('" + RecipeName + "');";
-			query = "INSERT INTO store.recipe (recipeName) VALUES ('" + RecipeName + "');";
+			query = "INSERT INTO store.recipe (recipeName, mealTime) VALUES ('" + RecipeName + "', '" + mealTime + "');";
 			
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);

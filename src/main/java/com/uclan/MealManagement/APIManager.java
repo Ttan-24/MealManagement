@@ -17,20 +17,48 @@ import javax.swing.JLabel;
 import org.json.*;
 
 public class APIManager {
-	static ArrayList<String> generalIngredients = new ArrayList<String>();
 	
-	APIManager()
-	{
-		// Get generalised ingredients
+	public static void getAPI(String textField, JLabel label) throws Exception {
+		
+		// Make generalised ingredient list
+		ArrayList<String> generalIngredients = new ArrayList<String>();
 		generalIngredients.add("butter");
 		generalIngredients.add("onion");
 		generalIngredients.add("sugar");
 		generalIngredients.add("carrots");
 		generalIngredients.add("spinach");
 		generalIngredients.add("salt");
-	}
-	
-	public static void getAPI(String textField, JLabel label) throws Exception {
+		generalIngredients.add("carrot");
+		generalIngredients.add("potato");
+		generalIngredients.add("turmeric");
+		generalIngredients.add("curry powder");
+		generalIngredients.add("parsley");
+		generalIngredients.add("black pepper");
+		generalIngredients.add("bell pepper");
+		generalIngredients.add("chicken breast");
+		generalIngredients.add("thyme");
+		generalIngredients.add("cheddar");
+		generalIngredients.add("basil");
+		generalIngredients.add("parmesian");
+		generalIngredients.add("olive oil");
+		generalIngredients.add("cumin");
+		generalIngredients.add("cilantrio");
+		generalIngredients.add("cranberries");
+		generalIngredients.add("balsamic vinegar");
+		generalIngredients.add("turkey");
+		generalIngredients.add("water");
+		generalIngredients.add("rosemary");
+		generalIngredients.add("chives");
+		generalIngredients.add("saffron");
+		generalIngredients.add("milk");
+		generalIngredients.add("cream");
+		generalIngredients.add("egg");
+		generalIngredients.add("cinnamon");
+		generalIngredients.add("scallions");
+		generalIngredients.add("ginger");
+		generalIngredients.add("garlic");
+		generalIngredients.add("coco powder");
+		
 		
 		// Get response from API
 		HttpRequest request = HttpRequest.newBuilder()
@@ -56,15 +84,27 @@ public class APIManager {
 			// Get recipe JSON
 		    JSONObject recipeJson = recipeArray.getJSONObject(i);
 		    
-		    // Add recipe to database
+		    // Get recipe name
 		    String recipeName = recipeJson.getString("name");
-		    SQLManager.AddRecipeQuery(recipeName);
 		    
 		    // Get recipe details
 		    JSONArray sections = recipeJson.getJSONArray("sections");
 		    JSONObject section = sections.getJSONObject(0);
 	    	JSONArray components = section.getJSONArray("components");
+	    	JSONArray tags = recipeJson.getJSONArray("tags");
 	    	
+	    	// Iterate through tags
+	    	String mealTime = "";
+		    for (int j = 0; j < tags.length(); j++) {
+		    	JSONObject tag = tags.getJSONObject(j);
+		    	if (tag.getString("type").equals("meal"))
+		    	{
+		    		mealTime = tag.getString("name");
+		    	}
+		    }
+		    
+		    // Add recipe to SQL database
+		    SQLManager.AddRecipeQuery(recipeName, mealTime);
 	    	
 	    	// Look at each ingredient/component
 		    for (int j = 0; j < components.length(); j++) {
@@ -84,10 +124,9 @@ public class APIManager {
 				}
 			    
 			    // Add ingredient to SQL database
-			    System.out.print(ingredientName + ", ");
 			    SQLManager.AddIngredientsFromList(ingredientName, SQLManager.RecipeID());
 		    }
-		    System.out.println();
+		    
 		   } 
 		} 
 		
