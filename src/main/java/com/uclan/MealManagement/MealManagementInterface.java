@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -28,6 +29,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JScrollBar;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.ImageIcon;
 
 public class MealManagementInterface extends JFrame {
 
@@ -72,6 +78,7 @@ public class MealManagementInterface extends JFrame {
 	private JPanel RecipeFinderPanel;
 	private JLabel SearchedRecipesLabel;
 	private JTextField MealTimeTextField;
+	private JTable table_1;
 
 	public static void deleteAllRows(final DefaultTableModel model) {
 		for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -449,6 +456,16 @@ public class MealManagementInterface extends JFrame {
 		});
 		RecipeFinderButton.setBounds(0, 275, 78, 49);
 		MenuPanel.add(RecipeFinderButton);
+		
+		JButton btnRecipeDetails = new JButton("Details");
+		btnRecipeDetails.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				viewCardLayout.show(ViewPanel, "RecipeDetailsPanel");
+			}
+		});
+		btnRecipeDetails.setBounds(0, 324, 78, 49);
+		MenuPanel.add(btnRecipeDetails);
 
 		ViewPanel = new JPanel();
 		ViewPanel.setBounds(79, 0, 785, 511);
@@ -731,6 +748,142 @@ public class MealManagementInterface extends JFrame {
 		SearchedRecipesLabel.setVerticalAlignment(SwingConstants.TOP);
 		SearchedRecipesLabel.setBounds(43, 125, 635, 349);
 		RecipeFinderPanel.add(SearchedRecipesLabel);
+		
+		JPanel RecipeDetailsPanel = new JPanel();
+		ViewPanel.add(RecipeDetailsPanel, "RecipeDetailsPanel");
+		RecipeDetailsPanel.setLayout(null);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 11, 765, 489);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		RecipeDetailsPanel.add(scrollPane);
+		
+		JPanel RecipeDetailsContentPanel = new JPanel();
+		RecipeDetailsContentPanel.setBounds(0, 0, 750, 800);
+		RecipeDetailsContentPanel.setPreferredSize(new Dimension(750, 1100));
+		scrollPane.setViewportView(RecipeDetailsContentPanel);
+		RecipeDetailsContentPanel.setLayout(null);
+		
+		JSplitPane RecipeInfoPane = new JSplitPane();
+		RecipeInfoPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		RecipeInfoPane.setEnabled(false);
+		RecipeInfoPane.setBounds(35, 210, 705, 110);
+		RecipeDetailsContentPanel.add(RecipeInfoPane);
+		
+		JLabel lblNewLabel_1_2 = new JLabel("Recipe Description");
+		lblNewLabel_1_2.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		RecipeInfoPane.setLeftComponent(lblNewLabel_1_2);
+		
+		JTextArea txtrRecipesDetailsGo_1_2 = new JTextArea();
+		txtrRecipesDetailsGo_1_2.setText("A light meal, which is quick, healthy, and easy to make! Try this if you enjoy seafood, or want to try something new. Ready in under an hour, and requires no cooking.");
+		txtrRecipesDetailsGo_1_2.setLineWrap(true);
+		RecipeInfoPane.setRightComponent(txtrRecipesDetailsGo_1_2);
+		
+		JLabel lblNewLabel_2 = new JLabel("");
+		lblNewLabel_2.setIcon(new ImageIcon("C:\\Users\\Aaron\\Downloads\\meal.png"));
+		lblNewLabel_2.setBounds(43, 11, 225, 188);
+		RecipeDetailsContentPanel.add(lblNewLabel_2);
+		
+		JLabel RecipeDetailsTitle = new JLabel("Salmon Rolls");
+		RecipeDetailsTitle.setFont(new Font("Tahoma", Font.PLAIN, 37));
+		RecipeDetailsTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		RecipeDetailsTitle.setBounds(333, 43, 371, 87);
+		RecipeDetailsContentPanel.add(RecipeDetailsTitle);
+		
+		JLabel lblRecipeName = new JLabel("Recipe Details");
+		lblRecipeName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblRecipeName.setFont(new Font("Tahoma", Font.PLAIN, 23));
+		lblRecipeName.setBounds(333, 121, 381, 45);
+		RecipeDetailsContentPanel.add(lblRecipeName);
+		
+		JSplitPane ProcessDetailsSplitPane = new JSplitPane();
+		ProcessDetailsSplitPane.setEnabled(false);
+		ProcessDetailsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		ProcessDetailsSplitPane.setBounds(35, 331, 273, 87);
+		RecipeDetailsContentPanel.add(ProcessDetailsSplitPane);
+		
+		JLabel lblNewLabel = new JLabel("Process Details");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		ProcessDetailsSplitPane.setLeftComponent(lblNewLabel);
+		
+		JTextArea txtrRecipesDetailsGo = new JTextArea();
+		ProcessDetailsSplitPane.setRightComponent(txtrRecipesDetailsGo);
+		txtrRecipesDetailsGo.setLineWrap(true);
+		txtrRecipesDetailsGo.setText("Time: 30 mins\r\nDifficulty: Easy\r\nServings: 2");
+		
+		JSplitPane NutritionSplitPane = new JSplitPane();
+		NutritionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		NutritionSplitPane.setEnabled(false);
+		NutritionSplitPane.setBounds(396, 331, 344, 87);
+		RecipeDetailsContentPanel.add(NutritionSplitPane);
+		
+		JLabel lblNewLabel_1 = new JLabel("Nutrition Details");
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		NutritionSplitPane.setLeftComponent(lblNewLabel_1);
+		
+		JTextArea txtrRecipesDetailsGo_1 = new JTextArea();
+		txtrRecipesDetailsGo_1.setText("Energy: 500kcal\r\nVegetarian: Yes");
+		txtrRecipesDetailsGo_1.setLineWrap(true);
+		NutritionSplitPane.setRightComponent(txtrRecipesDetailsGo_1);
+		
+		JSplitPane IngredientsSplitPane = new JSplitPane();
+		IngredientsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		IngredientsSplitPane.setEnabled(false);
+		IngredientsSplitPane.setBounds(35, 429, 705, 157);
+		RecipeDetailsContentPanel.add(IngredientsSplitPane);
+		
+		JLabel lblNewLabel_1_1 = new JLabel("Ingredients");
+		lblNewLabel_1_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		IngredientsSplitPane.setLeftComponent(lblNewLabel_1_1);
+		
+		JTextArea txtrRecipesDetailsGo_1_1 = new JTextArea();
+		txtrRecipesDetailsGo_1_1.setText("Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here ");
+		txtrRecipesDetailsGo_1_1.setLineWrap(true);
+		IngredientsSplitPane.setRightComponent(txtrRecipesDetailsGo_1_1);
+		
+		JSplitPane InstructionsSplitPane = new JSplitPane();
+		InstructionsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		InstructionsSplitPane.setEnabled(false);
+		InstructionsSplitPane.setBounds(35, 597, 705, 210);
+		RecipeDetailsContentPanel.add(InstructionsSplitPane);
+		
+		JLabel lblNewLabel_1_1_1 = new JLabel("Instructions");
+		lblNewLabel_1_1_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		InstructionsSplitPane.setLeftComponent(lblNewLabel_1_1_1);
+		
+		JTextArea txtrRecipesDetailsGo_1_1_1 = new JTextArea();
+		txtrRecipesDetailsGo_1_1_1.setText("Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here Recipes details go here ");
+		txtrRecipesDetailsGo_1_1_1.setLineWrap(true);
+		InstructionsSplitPane.setRightComponent(txtrRecipesDetailsGo_1_1_1);
+		
+		JSplitPane RecommendationsSplitPane = new JSplitPane();
+		RecommendationsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		RecommendationsSplitPane.setEnabled(false);
+		RecommendationsSplitPane.setBounds(35, 845, 705, 147);
+		RecipeDetailsContentPanel.add(RecommendationsSplitPane);
+		
+		JLabel lblNewLabel_1_1_1_1 = new JLabel("Recommendations");
+		lblNewLabel_1_1_1_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		RecommendationsSplitPane.setLeftComponent(lblNewLabel_1_1_1_1);
+		
+		table_1 = new JTable();
+		table_1.setModel(new DefaultTableModel(
+			new Object[][] {
+				{"Pancakes", "Porridge", "Rasmalai", null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column"
+			}
+		));
+		RecommendationsSplitPane.setRightComponent(table_1);
+		
+		
 		// login function
 		// get connection to the database
 		// checks the username textfield and password textfield against the database
