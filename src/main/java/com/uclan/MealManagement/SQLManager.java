@@ -28,8 +28,8 @@ public class SQLManager {
 
 		try {
 			String driver = "com.mysql.cj.jdbc.Driver";
-//			String url = "jdbc:mysql://localhost:3306/store_db?serverTimezone=UTC";
-			String url = "jdbc:mysql://localhost:3306/store?serverTimezone=UTC";
+			String url = "jdbc:mysql://localhost:3306/store_db?serverTimezone=UTC";
+			// String url = "jdbc:mysql://localhost:3306/store?serverTimezone=UTC";
 			String username = "root";
 			String password = "root";
 			Class.forName(driver);
@@ -71,9 +71,10 @@ public class SQLManager {
 
 			Connection getConnection = getConnection();
 			// Filtering out groups without a name or any patients.
-			//String query = "SELECT Username, Password FROM store_db.customer WHERE Username = '" + Username + "';";
-			String query = "SELECT Username, Password FROM store.customer WHERE Username = '" + Username + "';";
-			
+			String query = "SELECT Username, Password FROM store_db.customer WHERE Username = '" + Username + "';";
+			// String query = "SELECT Username, Password FROM store.customer WHERE Username
+			// = '" + Username + "';";
+
 			Statement st = getConnection.createStatement();
 			ResultSet rs = st.executeQuery(query);
 
@@ -104,8 +105,8 @@ public class SQLManager {
 
 			Connection getConnection = getConnection();
 			// Filtering out groups without a name or any patients.
-			//String query = "SELECT * FROM store_db.customer WHERE Username = '" + Username + "';";
-			String query = "SELECT * FROM store.customer WHERE Username = '" + Username + "';";
+			String query = "SELECT * FROM store_db.customer WHERE Username = '" + Username + "';";
+//			String query = "SELECT * FROM store.customer WHERE Username = '" + Username + "';";
 			Statement st = getConnection.createStatement();
 			ResultSet rs = st.executeQuery(query);
 
@@ -129,10 +130,11 @@ public class SQLManager {
 		try {
 			// Connection
 			Connection getConnection = getConnection();
-			//query = "Select p.itemName, p.quantity, p.calories from store_db.items p LEFT JOIN store_db.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
-			//		+ customerID + "';";
-			query = "Select p.itemName, p.quantity, p.calories from store.item p LEFT JOIN store.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
+			query = "Select p.itemName, p.quantity, p.calories from store_db.items p LEFT JOIN store_db.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
 					+ customerID + "';";
+			// query = "Select p.itemName, p.quantity, p.calories from store.item p LEFT
+			// JOIN store.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
+			// + customerID + "';";
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
@@ -151,11 +153,11 @@ public class SQLManager {
 			// Connection
 			Connection getConnection = getConnection();
 
-//			query = "INSERT INTO store_db.items (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
-//					+ "', '" + itemName + "', '" + quantity + "', '" + calories + "');";
-			
-			query = "INSERT INTO store.item (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
+			query = "INSERT INTO store_db.items (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
 					+ "', '" + itemName + "', '" + quantity + "', '" + calories + "');";
+
+//			query = "INSERT INTO store.item (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
+//					+ "', '" + itemName + "', '" + quantity + "', '" + calories + "');";
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);
@@ -170,8 +172,8 @@ public class SQLManager {
 		String query = "";
 		try {
 			Connection getConnection = getConnection();
-//			query = "SELECT * FROM store_db.recipe;";
-			query = "SELECT * FROM store.recipe;";
+			query = "SELECT * FROM store_db.recipe;";
+//			query = "SELECT * FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			return rs;
@@ -182,15 +184,20 @@ public class SQLManager {
 		}
 	}
 
-	public static void AddRecipeQuery(String RecipeName, String mealTime) throws Exception {
+	public static void AddRecipeQuery(String recipeName, String mealTime, String recipeDescription, String recipeTime,
+			String recipeDietCategory, String recipeCalories, String recipeDifficulty, String recipeServings,
+			String recipeInstructions) throws Exception {
 		String query = "";
 		try {
 			// Connection
 			Connection getConnection = getConnection();
 
-//			query = "INSERT INTO store_db.recipe (recipeName) VALUES ('" + RecipeName + "');";
-			query = "INSERT INTO store.recipe (recipeName, mealTime) VALUES ('" + RecipeName + "', '" + mealTime + "');";
-			
+			query = "INSERT INTO store_db.recipe (recipeName, mealTime, recipeDescription, recipeTime, dietCategory, recipeCalories, recipeDifficulty, recipeServings, recipeInstructions) VALUES ('"
+					+ recipeName + "', '" + mealTime + "', '" + recipeDescription + "', '" + recipeTime + "', '"
+					+ recipeDietCategory + "', '" + recipeCalories + "', '" + recipeDifficulty + "', '" + recipeServings
+					+ "', '" + recipeInstructions + "');";
+//			query = "INSERT INTO store.recipe (recipeName, mealTime) VALUES ('" + RecipeName + "', '" + mealTime + "');";
+
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);
@@ -206,10 +213,10 @@ public class SQLManager {
 		try {
 			// Connection
 			Connection getConnection = getConnection();
-//			query = "INSERT INTO store_db.ingredients (ingredientName,  idrecipe) VALUES ('" + ingredientName + "', '"
-//					+ idrecipe + "')";
-			query = "INSERT INTO store.ingredient (ingredientName,  idrecipe) VALUES ('" + ingredientName + "', '"
+			query = "INSERT INTO store_db.ingredients (ingredientName,  idrecipe) VALUES ('" + ingredientName + "', '"
 					+ idrecipe + "')";
+//			query = "INSERT INTO store.ingredient (ingredientName,  idrecipe) VALUES ('" + ingredientName + "', '"
+//					+ idrecipe + "')";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);
 		} catch (Exception e) {
@@ -222,8 +229,8 @@ public class SQLManager {
 		String id = null;
 		try {
 			Connection getConnection = getConnection();
-			//query = "SELECT MAX(idrecipe) FROM store_db.recipe;";
-			query = "SELECT MAX(idrecipe) FROM store.recipe;";
+			query = "SELECT MAX(idrecipe) FROM store_db.recipe;";
+//			query = "SELECT MAX(idrecipe) FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			while (rs.next()) {
@@ -243,10 +250,10 @@ public class SQLManager {
 		try {
 			// Connection
 			Connection getConnection = getConnection();
-//			query = "Select p.ingredientName from store_db.ingredients p LEFT JOIN store_db.recipe a ON p.idrecipe = a.idrecipe where a.idrecipe = '"
-//					+ recipeId + "';";
-			query = "Select p.ingredientName from store.ingredient p LEFT JOIN store.recipe a ON p.idrecipe = a.idrecipe where a.idrecipe = '"
+			query = "Select p.ingredientName from store_db.ingredients p LEFT JOIN store_db.recipe a ON p.idrecipe = a.idrecipe where a.idrecipe = '"
 					+ recipeId + "';";
+//			query = "Select p.ingredientName from store.ingredient p LEFT JOIN store.recipe a ON p.idrecipe = a.idrecipe where a.idrecipe = '"
+//					+ recipeId + "';";
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
@@ -269,10 +276,10 @@ public class SQLManager {
 		ArrayList<String> FavouriteRecipeList = new ArrayList<String>();
 		try {
 			Connection getConnection = getConnection();
-//			query = "Select p.recipeName from store_db.recipe p LEFT JOIN store_db.favourites a ON p.idrecipe = a.recipeId where a.customerID = '"
-//					+ customerId + "';";
-			query = "Select p.recipeName from store.recipe p LEFT JOIN store.favourite a ON p.idrecipe = a.recipeId where a.idcustomer = '"
+			query = "Select p.recipeName from store_db.recipe p LEFT JOIN store_db.favourites a ON p.idrecipe = a.recipeId where a.customerID = '"
 					+ customerId + "';";
+//			query = "Select p.recipeName from store.recipe p LEFT JOIN store.favourite a ON p.idrecipe = a.recipeId where a.idcustomer = '"
+//					+ customerId + "';";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			while (rs.next()) {
@@ -406,14 +413,13 @@ public class SQLManager {
 		ArrayList<HashMap<String, String>> SimilarUserList = new ArrayList<HashMap<String, String>>();
 
 		Connection getConnection = getConnection();
-//		query = "SELECT cus.customerId AS current_user_id, ous.customerId AS other_user_id, COUNT(*) AS same_recipe_count FROM store_db.favourites AS ous JOIN store_db.favourites AS cus ON cus.recipeId = ous.recipeId AND cus.customerId <> ous.customerId WHERE cus.customerId = '"
-//				+ customerId
-//				+ "' GROUP BY cus.customerId, ous.customerId ORDER BY cus.customerId, same_recipe_count DESC";
-		
-		
-		query = "SELECT cus.idcustomer AS current_user_id, ous.idcustomer AS other_user_id, COUNT(*) AS same_recipe_count FROM store.favourite AS ous JOIN store.favourite AS cus ON cus.recipeId = ous.recipeId AND cus.idcustomer <> ous.idcustomer WHERE cus.idcustomer = '"
+		query = "SELECT cus.customerId AS current_user_id, ous.customerId AS other_user_id, COUNT(*) AS same_recipe_count FROM store_db.favourites AS ous JOIN store_db.favourites AS cus ON cus.recipeId = ous.recipeId AND cus.customerId <> ous.customerId WHERE cus.customerId = '"
 				+ customerId
-				+ "' GROUP BY cus.idcustomer, ous.idcustomer ORDER BY cus.idcustomer, same_recipe_count DESC";
+				+ "' GROUP BY cus.customerId, ous.customerId ORDER BY cus.customerId, same_recipe_count DESC";
+
+//		query = "SELECT cus.idcustomer AS current_user_id, ous.idcustomer AS other_user_id, COUNT(*) AS same_recipe_count FROM store.favourite AS ous JOIN store.favourite AS cus ON cus.recipeId = ous.recipeId AND cus.idcustomer <> ous.idcustomer WHERE cus.idcustomer = '"
+//				+ customerId
+//				+ "' GROUP BY cus.idcustomer, ous.idcustomer ORDER BY cus.idcustomer, same_recipe_count DESC";
 
 		Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = st.executeQuery(query);
@@ -440,5 +446,27 @@ public class SQLManager {
 		suggestedRecipesLabel.setText(SuggestedRecipeString);
 	}
 
-}
+	public static HashMap<String, String> getRecipeDetails(int recipeID) throws Exception, SQLException {
+		String query = "";
+		HashMap<String, String> RecipeDetailMap = new HashMap<String, String>();
 
+		Connection getConnection = getConnection();
+		query = "SELECT * FROM store_db.recipe where idrecipe = '" + recipeID + "'";
+
+		Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs = st.executeQuery(query);
+		while (rs.next()) {
+			RecipeDetailMap.put("RecipeID", rs.getString(1));
+			RecipeDetailMap.put("RecipeName", rs.getString(2));
+			RecipeDetailMap.put("mealTime", rs.getString(3));
+			RecipeDetailMap.put("RecipeDescription", rs.getString(4));
+			RecipeDetailMap.put("RecipeTime", rs.getString(5));
+			RecipeDetailMap.put("RecipeDifficulty", rs.getString(6));
+			RecipeDetailMap.put("RecipeServings", rs.getString(7));
+			RecipeDetailMap.put("RecipeCalories", rs.getString(8));
+			RecipeDetailMap.put("dietCategory", rs.getString(9));
+			RecipeDetailMap.put("RecipeInstructions", rs.getString(10));
+		}
+		return RecipeDetailMap;
+	}
+}
