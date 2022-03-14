@@ -172,7 +172,7 @@ public class SQLManager {
 		String query = "";
 		try {
 			Connection getConnection = getConnection();
-			query = "SELECT * FROM store_db.recipe;";
+			query = "SELECT idrecipe, recipeName, mealTime FROM store_db.recipe;";
 //			query = "SELECT * FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
