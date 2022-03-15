@@ -130,7 +130,7 @@ public class SQLManager {
 		try {
 			// Connection
 			Connection getConnection = getConnection();
-			query = "Select p.itemName, p.quantity, p.calories from store_db.items p LEFT JOIN store_db.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
+			query = "Select p.itemName, p.bestbefore, p.quantity, p.calories from store_db.items p LEFT JOIN store_db.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
 					+ customerID + "';";
 			// query = "Select p.itemName, p.quantity, p.calories from store.item p LEFT
 			// JOIN store.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
@@ -146,18 +146,38 @@ public class SQLManager {
 		}
 	}
 
-	public static void AddFridgeQuery(String customerID, String itemName, String quantity, String calories)
-			throws Exception {
+	public static void AddFridgeQuery(String customerID, String itemName, String bestBefore, String quantity,
+			String calories) throws Exception {
 		String query = "";
 		try {
 			// Connection
 			Connection getConnection = getConnection();
 
-			query = "INSERT INTO store_db.items (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
-					+ "', '" + itemName + "', '" + quantity + "', '" + calories + "');";
+			query = "INSERT INTO store_db.items (idcustomer, itemName, bestbefore, quantity, calories) VALUES ('"
+					+ customerID + "', '" + itemName + "', '" + bestBefore + "', '" + quantity + "', '" + calories
+					+ "');";
 
 //			query = "INSERT INTO store.item (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
 //					+ "', '" + itemName + "', '" + quantity + "', '" + calories + "');";
+			// it allows to reset the result set
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			st.executeUpdate(query);
+
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+		}
+	}
+
+	public static void DeleteFridgeQuery(String customerID, String itemName) throws Exception {
+		String query = "";
+		try {
+			// Connection
+			Connection getConnection = getConnection();
+
+			query = "DELETE FROM store_db.items WHERE idcustomer = '" + customerID + "' AND itemName = '" + itemName
+					+ "';";
+
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);

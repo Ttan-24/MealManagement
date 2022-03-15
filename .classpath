@@ -24,5 +24,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/plusSign.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/delete.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

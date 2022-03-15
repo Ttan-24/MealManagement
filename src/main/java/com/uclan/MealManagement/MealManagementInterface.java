@@ -84,6 +84,8 @@ public class MealManagementInterface extends JFrame {
 	private JTextArea NutritionTextArea;
 	private JTextArea RecipeIngredientsTextArea;
 	private JTextArea RecipeInstructionsTextArea;
+	private JPanel RecipeDetailsPanel;
+	private JTextField BestBeforeTextField;
 
 	public static void deleteAllRows(final DefaultTableModel model) {
 		for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -518,7 +520,7 @@ public class MealManagementInterface extends JFrame {
 		FridgePanel.setLayout(null);
 
 		JButton btnNewButton = new JButton("  ");
-		btnNewButton.setBounds(483, 37, 262, 37);
+		btnNewButton.setBounds(483, 465, 262, 37);
 		btnNewButton.setForeground(Color.GREEN);
 		FridgePanel.add(btnNewButton);
 
@@ -539,7 +541,8 @@ public class MealManagementInterface extends JFrame {
 		FridgeTable.setShowHorizontalLines(true);
 		FridgeScrollPane.setViewportView(FridgeTable);
 
-		JButton AddFridgeIngredientsButton = new JButton("Add Ingredients");
+		JButton AddFridgeIngredientsButton = new JButton();
+		AddFridgeIngredientsButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/plusSign.png")));
 		AddFridgeIngredientsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
@@ -547,16 +550,17 @@ public class MealManagementInterface extends JFrame {
 		AddFridgeIngredientsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (ItemNameTextField.getText().length() > 0 && QuantityTextField.getText().length() > 0
-						&& CaloriesTextField.getText().length() > 0) {
+				if (ItemNameTextField.getText().length() > 0 && BestBeforeTextField.getText().length() > 0
+						&& QuantityTextField.getText().length() > 0 && CaloriesTextField.getText().length() > 0) {
 					try {
-						SQLManager.AddFridgeQuery(mUserID, ItemNameTextField.getText(), QuantityTextField.getText(),
-								CaloriesTextField.getText());
+						SQLManager.AddFridgeQuery(mUserID, ItemNameTextField.getText(), BestBeforeTextField.getText(),
+								QuantityTextField.getText(), CaloriesTextField.getText());
 						ResultSet rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
 						SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery);
 						ItemNameTextField.setText("");
 						QuantityTextField.setText("");
 						CaloriesTextField.setText("");
+						BestBeforeTextField.setText("");
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -564,35 +568,64 @@ public class MealManagementInterface extends JFrame {
 				}
 			}
 		});
-		AddFridgeIngredientsButton.setBounds(615, 449, 130, 51);
+		AddFridgeIngredientsButton.setBounds(615, 30, 49, 44);
 		FridgePanel.add(AddFridgeIngredientsButton);
 
 		ItemNameTextField = new JTextField();
-		ItemNameTextField.setBounds(33, 474, 122, 37);
+		ItemNameTextField.setBounds(34, 37, 122, 37);
 		FridgePanel.add(ItemNameTextField);
 		ItemNameTextField.setColumns(10);
 
 		QuantityTextField = new JTextField();
 		QuantityTextField.setColumns(10);
-		QuantityTextField.setBounds(230, 474, 122, 37);
+		QuantityTextField.setBounds(351, 37, 122, 37);
 		FridgePanel.add(QuantityTextField);
 
 		CaloriesTextField = new JTextField();
 		CaloriesTextField.setColumns(10);
-		CaloriesTextField.setBounds(413, 474, 122, 37);
+		CaloriesTextField.setBounds(483, 37, 122, 37);
 		FridgePanel.add(CaloriesTextField);
 
 		JLabel ItemNameLabel = new JLabel("Ingredient Name");
-		ItemNameLabel.setBounds(34, 449, 122, 24);
+		ItemNameLabel.setBounds(34, 11, 122, 24);
 		FridgePanel.add(ItemNameLabel);
 
 		JLabel QuantityLabel = new JLabel("Quantity");
-		QuantityLabel.setBounds(230, 449, 122, 24);
+		QuantityLabel.setBounds(351, 11, 122, 24);
 		FridgePanel.add(QuantityLabel);
 
 		JLabel CaloriesLabel = new JLabel("Calories");
-		CaloriesLabel.setBounds(413, 449, 122, 24);
+		CaloriesLabel.setBounds(483, 11, 122, 24);
 		FridgePanel.add(CaloriesLabel);
+
+		JLabel BestBeforeLabel = new JLabel("BEST BEFORE");
+		BestBeforeLabel.setBounds(197, 11, 122, 24);
+		FridgePanel.add(BestBeforeLabel);
+
+		BestBeforeTextField = new JTextField();
+		BestBeforeTextField.setColumns(10);
+		BestBeforeTextField.setBounds(182, 37, 122, 37);
+		FridgePanel.add(BestBeforeTextField);
+
+		JButton DeleteFridgeIngredientsButton = new JButton();
+		DeleteFridgeIngredientsButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int selectedRow = FridgeTable.getSelectedRow();
+				String itemName = String.valueOf(FridgeTable.getModel().getValueAt(selectedRow, 0));
+				try {
+					SQLManager.DeleteFridgeQuery(mUserID, itemName);
+					ResultSet rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
+					SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		DeleteFridgeIngredientsButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/delete.png")));
+		DeleteFridgeIngredientsButton.setBounds(668, 31, 59, 43);
+		FridgePanel.add(DeleteFridgeIngredientsButton);
 
 		JPanel MealPlanPanel = new JPanel();
 		ViewPanel.add(MealPlanPanel, "MealPlanViewPanel");
@@ -855,7 +888,7 @@ public class MealManagementInterface extends JFrame {
 		SearchedRecipesLabel.setBounds(43, 125, 635, 349);
 		RecipeFinderPanel.add(SearchedRecipesLabel);
 
-		JPanel RecipeDetailsPanel = new JPanel();
+		RecipeDetailsPanel = new JPanel();
 		ViewPanel.add(RecipeDetailsPanel, "RecipeDetailsPanel");
 		RecipeDetailsPanel.setLayout(null);
 
@@ -883,7 +916,7 @@ public class MealManagementInterface extends JFrame {
 		RecipeDetailsContentPanel.add(RecipeDetailsTitle);
 
 		JLabel DetailsLabel = new JLabel("");
-		DetailsLabel.setIcon(new ImageIcon("C:\\Users\\Aaron\\Downloads\\meal.png"));
+		// DetailsLabel.setIcon(new ImageIcon("C:\\Users\\Downloads\\meal.png"));
 		DetailsLabel.setBounds(43, 11, 225, 188);
 		RecipeDetailsContentPanel.add(DetailsLabel);
 
