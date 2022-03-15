@@ -365,7 +365,46 @@ public class SQLManager {
 		}
 	}
 
-	public static void populateTableWithResultSet(JTable table, ResultSet rs) throws SQLException {
+	public static void AddFavouriteRecipe(String customerID, String recipeID) throws Exception {
+		String query = "";
+		try {
+			// Connection
+			Connection getConnection = getConnection();
+
+			query = "INSERT INTO store_db.favourites (customerId, recipeId) VALUES ('" + customerID + "', '" + recipeID
+					+ "');";
+
+			// it allows to reset the result set
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			st.executeUpdate(query);
+
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+		}
+	}
+
+	public static void DeleteFavouriteRecipe(String customerID, String recipeID) throws Exception {
+		String query = "";
+		try {
+			// Connection
+			Connection getConnection = getConnection();
+
+			query = "DELETE FROM store_db.favourites WHERE recipeId = '" + recipeID + "' AND customerId = '"
+					+ customerID + "';";
+
+			// it allows to reset the result set
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			st.executeUpdate(query);
+
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+		}
+	}
+
+	public static void populateTableWithResultSet(JTable table, ResultSet rs, ArrayList<String> columnName)
+			throws SQLException {
 
 		// Resultset metadata
 		ResultSetMetaData metaData = rs.getMetaData();
@@ -374,7 +413,7 @@ public class SQLManager {
 		Vector<String> columnNames = new Vector<String>();
 		int columnCount = metaData.getColumnCount();
 		for (int column = 1; column <= columnCount; column++) {
-			columnNames.add(metaData.getColumnName(column));
+			columnNames.add(columnName.get(column));
 		}
 
 		// Table data
@@ -394,13 +433,13 @@ public class SQLManager {
 		DefaultTableModel model = new DefaultTableModel(data, columnNames);
 
 		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
-		Color green = Color.decode("#A6FFCB");
+		Color lightPink = Color.decode("#f4d8e4");
 		// Set table model
 		table.setModel(model);
 		JTableHeader Header = table.getTableHeader();
-		Header.setBackground(green);
+		Header.setBackground(lightPink);
 		Header.setForeground(black);
-		Header.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
 
 		// Resize table
 		// resizeTable(table);
@@ -416,11 +455,18 @@ public class SQLManager {
 		// Resultset metadata
 		ResultSetMetaData metaData = rs.getMetaData();
 
+		ArrayList<String> columnName = new ArrayList<String>();
+		columnName.add("");
+		columnName.add("Sr no.");
+		columnName.add("Recipe Name");
+		columnName.add("Meal Time");
+		columnName.add("Favourite");
+
 		// Table columns
 		Vector<String> columnNames = new Vector<String>();
 		int columnCount = metaData.getColumnCount();
 		for (int column = 1; column <= columnCount; column++) {
-			columnNames.add(metaData.getColumnName(column));
+			columnNames.add(columnName.get(column));
 		}
 
 		// Table data
@@ -461,13 +507,13 @@ public class SQLManager {
 		}
 		model.addColumn("Favourite", toggleList);
 		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
-		Color green = Color.decode("#A6FFCB");
+		Color lightPink = Color.decode("#f4d8e4");
 		// Set table model
 		table.setModel(model);
 		JTableHeader Header = table.getTableHeader();
-		Header.setBackground(green);
+		Header.setBackground(lightPink);
 		Header.setForeground(black);
-		Header.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
 
 		// Resize table
 		// resizeTable(table);
@@ -517,7 +563,7 @@ public class SQLManager {
 		suggestedRecipesLabel.setText(SuggestedRecipeString);
 	}
 
-	public static void populateSuggestedRecipesInTable(String customerId, JTable suggestedRecipesTable)
+	public static void populateSuggestedRecipesInTable(String customerId, JTable suggestedRecipesTable, String[] col)
 			throws Exception {
 		// give arraylist of recipe ids
 
@@ -525,16 +571,19 @@ public class SQLManager {
 		String similarUserId = similarUsers.get(0).get("UserID");
 
 		ArrayList<String> SuggestedRecipes = getFavouriteRecipes(similarUserId);
-		String SuggestedRecipeString = "Suggested Recipes: ";
+		String SuggestedRecipeString = "";
 
 		DefaultTableModel suggestedRecipesTableModel = new DefaultTableModel();
+		suggestedRecipesTableModel.addColumn(col);
 		suggestedRecipesTable = new JTable(suggestedRecipesTableModel);
 		for (int i = 0; i < SuggestedRecipes.size(); i++) {
 			SuggestedRecipeString += SuggestedRecipes.get(i);
 			Object[] data = { SuggestedRecipeString };
+
 			suggestedRecipesTableModel.addRow(data);
 		}
-
+		// suggestedRecipesTableModel.setValueAt(SuggestedRecipeString, i, 1);
+		suggestedRecipesTable.setModel(suggestedRecipesTableModel);
 	}
 
 	public static HashMap<String, String> getRecipeDetails(int recipeID) throws Exception, SQLException {

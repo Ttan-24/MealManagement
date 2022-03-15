@@ -26,5 +26,12 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/plusSign.jar"/>
 	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/delete.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/fridgeIcon.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/mealIcon.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/favouriteIcon.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/recipeIcon.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/detailsIcon.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/finderIcon.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Documents/3rd Year Work/Project/Icons/settingsIcon.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
