@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.font.TextAttribute;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -64,8 +66,10 @@ public class MealManagementInterface extends JFrame {
 	private JScrollPane IngredientScrollPane;
 	private DefaultTableModel IngredientTableModel;
 	private DefaultTableModel FavouriteRecipesTableModel;
+	private DefaultTableModel RecRecipesTableModel;
 	private String[] IngredientColumns;
 	private String[] FavouriteRecipesColumns;
+	private String[] RecRecipesColumns;
 	private JTextField ItemNameTextField;
 	private JTextField QuantityTextField;
 	private JTextField CaloriesTextField;
@@ -86,6 +90,10 @@ public class MealManagementInterface extends JFrame {
 	private JTextArea RecipeInstructionsTextArea;
 	private JPanel RecipeDetailsPanel;
 	private JTextField BestBeforeTextField;
+	private JLabel TotalItemsLabel;
+	private JTable RecRecipesTable;
+	private JTextField ChangePasswordTextField;
+	private JPanel LoggingPanel;
 
 	public static void deleteAllRows(final DefaultTableModel model) {
 		for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -165,12 +173,14 @@ public class MealManagementInterface extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * 
+	 * @throws Exception
 	 */
-	public MealManagementInterface() {
+	public MealManagementInterface() throws Exception {
 		initialize();
 	}
 
-	private void initialize() {
+	private void initialize() throws Exception {
 		// The parent of all the cards
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 890, 560);
@@ -201,7 +211,7 @@ public class MealManagementInterface extends JFrame {
 //		RegisterLoggingPanel.add(ConfirmPasswordLabel);
 
 		// The logging panel added to the parent
-		JPanel LoggingPanel = new JPanel();
+		LoggingPanel = new JPanel();
 		cardLayoutPane.add(LoggingPanel, "LoggingPanel");
 		LoggingPanel.setLayout(null);
 
@@ -211,9 +221,9 @@ public class MealManagementInterface extends JFrame {
 		UsernameLabel.setBounds(224, 139, 100, 40);
 		LoggingPanel.add(UsernameLabel);
 
-		JButton card1Button = new JButton("Login");
-		card1Button.setFont(new Font("Tahoma", Font.BOLD, 11));
-		card1Button.addMouseListener(new MouseAdapter() {
+		JButton LoginButton = new JButton("Login");
+		LoginButton.setFont(new Font("Tahoma", Font.BOLD, 11));
+		LoginButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// if (username and password != 0)
@@ -263,9 +273,9 @@ public class MealManagementInterface extends JFrame {
 
 			}
 		});
-		card1Button.setToolTipText("take me to card 2");
-		card1Button.setBounds(327, 289, 89, 31);
-		LoggingPanel.add(card1Button);
+		LoginButton.setToolTipText("take me to main panel");
+		LoginButton.setBounds(327, 289, 89, 31);
+		LoggingPanel.add(LoginButton);
 
 		JLabel PasswordLabel = new JLabel("Password");
 		PasswordLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -278,7 +288,7 @@ public class MealManagementInterface extends JFrame {
 		LoggingPanel.add(UsernameTextField);
 		UsernameTextField.setColumns(10);
 
-		PasswordTextField = new JTextField();
+		PasswordTextField = new JPasswordField();
 		PasswordTextField.setColumns(10);
 		PasswordTextField.setBounds(327, 201, 138, 40);
 		LoggingPanel.add(PasswordTextField);
@@ -441,15 +451,21 @@ public class MealManagementInterface extends JFrame {
 		JButton FavouritesButton = new JButton("Favourites");
 		// FavouritesButton.setIcon(new
 		// ImageIcon(ShoppingManagementInterface.class.getResource("/star.png")));
-		FavouritesButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
 		FavouritesButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				ResultSet rsFavouriteRecipeQuery;
 				// query of the favourite recipes
+				viewCardLayout.show(ViewPanel, "FavouriteViewPanel");
+				try {
+					rsFavouriteRecipeQuery = SQLManager.getFavouriteRecipesResultSet(mUserID);
+					SQLManager.populateTableWithResultSet(FavouriteRecipesTable, rsFavouriteRecipeQuery);
+
+					SQLManager.populateSuggestedRecipesInTable(mUserID, RecRecipesTable); //////////////// have to work
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		FavouritesButton.setBounds(0, 226, 78, 49);
@@ -510,6 +526,16 @@ public class MealManagementInterface extends JFrame {
 		RecipeDetailsButton.setBounds(0, 324, 78, 49);
 		MenuPanel.add(RecipeDetailsButton);
 
+		JButton SettingsButton = new JButton("Settings");
+		SettingsButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				viewCardLayout.show(ViewPanel, "SettingsViewPanel");
+			}
+		});
+		SettingsButton.setBounds(0, 373, 78, 49);
+		MenuPanel.add(SettingsButton);
+
 		ViewPanel = new JPanel();
 		ViewPanel.setBounds(79, 0, 785, 511);
 		MainPanel.add(ViewPanel);
@@ -519,17 +545,19 @@ public class MealManagementInterface extends JFrame {
 		ViewPanel.add(FridgePanel, "FridgeViewPanel");
 		FridgePanel.setLayout(null);
 
-		JButton btnNewButton = new JButton("  ");
-		btnNewButton.setBounds(483, 465, 262, 37);
-		btnNewButton.setForeground(Color.GREEN);
-		FridgePanel.add(btnNewButton);
-
 		JScrollPane FridgeScrollPane = new JScrollPane();
 		FridgeScrollPane.setBounds(34, 85, 711, 355);
 		// FridgeScrollPane.getViewport().setBackground(white);
 		FridgePanel.add(FridgeScrollPane);
 
-		FridgeTable = new JTable();
+		FridgeTable = new JTable() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			};
+		};
+
 		FridgeTable.setBounds(20, 81, 744, 404);
 		FridgeTable.setBackground(white);
 		FridgeTable.setForeground(black); // the text colour will change
@@ -539,6 +567,7 @@ public class MealManagementInterface extends JFrame {
 		FridgeTable.setShowGrid(false);
 		FridgeTable.setShowVerticalLines(false);
 		FridgeTable.setShowHorizontalLines(true);
+		FridgeTable.setAutoCreateRowSorter(true); // sorts columns asc-desc
 		FridgeScrollPane.setViewportView(FridgeTable);
 
 		JButton AddFridgeIngredientsButton = new JButton();
@@ -557,6 +586,7 @@ public class MealManagementInterface extends JFrame {
 								QuantityTextField.getText(), CaloriesTextField.getText());
 						ResultSet rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
 						SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery);
+						TotalItemsLabel.setText("Total Items: " + SQLManager.TotalFridgeItemsQuery());
 						ItemNameTextField.setText("");
 						QuantityTextField.setText("");
 						CaloriesTextField.setText("");
@@ -568,7 +598,7 @@ public class MealManagementInterface extends JFrame {
 				}
 			}
 		});
-		AddFridgeIngredientsButton.setBounds(615, 30, 49, 44);
+		AddFridgeIngredientsButton.setBounds(562, 30, 49, 44);
 		FridgePanel.add(AddFridgeIngredientsButton);
 
 		ItemNameTextField = new JTextField();
@@ -578,12 +608,12 @@ public class MealManagementInterface extends JFrame {
 
 		QuantityTextField = new JTextField();
 		QuantityTextField.setColumns(10);
-		QuantityTextField.setBounds(351, 37, 122, 37);
+		QuantityTextField.setBounds(298, 37, 122, 37);
 		FridgePanel.add(QuantityTextField);
 
 		CaloriesTextField = new JTextField();
 		CaloriesTextField.setColumns(10);
-		CaloriesTextField.setBounds(483, 37, 122, 37);
+		CaloriesTextField.setBounds(430, 37, 122, 37);
 		FridgePanel.add(CaloriesTextField);
 
 		JLabel ItemNameLabel = new JLabel("Ingredient Name");
@@ -591,20 +621,20 @@ public class MealManagementInterface extends JFrame {
 		FridgePanel.add(ItemNameLabel);
 
 		JLabel QuantityLabel = new JLabel("Quantity");
-		QuantityLabel.setBounds(351, 11, 122, 24);
+		QuantityLabel.setBounds(298, 11, 122, 24);
 		FridgePanel.add(QuantityLabel);
 
 		JLabel CaloriesLabel = new JLabel("Calories");
-		CaloriesLabel.setBounds(483, 11, 122, 24);
+		CaloriesLabel.setBounds(430, 11, 122, 24);
 		FridgePanel.add(CaloriesLabel);
 
 		JLabel BestBeforeLabel = new JLabel("BEST BEFORE");
-		BestBeforeLabel.setBounds(197, 11, 122, 24);
+		BestBeforeLabel.setBounds(166, 11, 122, 24);
 		FridgePanel.add(BestBeforeLabel);
 
 		BestBeforeTextField = new JTextField();
 		BestBeforeTextField.setColumns(10);
-		BestBeforeTextField.setBounds(182, 37, 122, 37);
+		BestBeforeTextField.setBounds(166, 37, 122, 37);
 		FridgePanel.add(BestBeforeTextField);
 
 		JButton DeleteFridgeIngredientsButton = new JButton();
@@ -617,6 +647,7 @@ public class MealManagementInterface extends JFrame {
 					SQLManager.DeleteFridgeQuery(mUserID, itemName);
 					ResultSet rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
 					SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery);
+					TotalItemsLabel.setText("Total Items: " + SQLManager.TotalFridgeItemsQuery());
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -624,8 +655,12 @@ public class MealManagementInterface extends JFrame {
 			}
 		});
 		DeleteFridgeIngredientsButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/delete.png")));
-		DeleteFridgeIngredientsButton.setBounds(668, 31, 59, 43);
+		DeleteFridgeIngredientsButton.setBounds(621, 30, 49, 43);
 		FridgePanel.add(DeleteFridgeIngredientsButton);
+
+		TotalItemsLabel = new JLabel("Total Items: " + SQLManager.TotalFridgeItemsQuery());
+		TotalItemsLabel.setBounds(34, 459, 122, 41);
+		FridgePanel.add(TotalItemsLabel);
 
 		JPanel MealPlanPanel = new JPanel();
 		ViewPanel.add(MealPlanPanel, "MealPlanViewPanel");
@@ -844,7 +879,7 @@ public class MealManagementInterface extends JFrame {
 		FavouritePanel.setLayout(null);
 
 		FavouriteRecipesScrollPane = new JScrollPane();
-		FavouriteRecipesScrollPane.setBounds(40, 43, 701, 360);
+		FavouriteRecipesScrollPane.setBounds(41, 82, 701, 189);
 		FavouritePanel.add(FavouriteRecipesScrollPane);
 
 		FavouriteRecipesColumns = new String[] { "Recipe Name" };
@@ -854,6 +889,18 @@ public class MealManagementInterface extends JFrame {
 		FavouriteRecipesTable = new JTable(FavouriteRecipesTableModel);
 		FavouriteRecipesScrollPane.setColumnHeaderView(FavouriteRecipesTable);
 		FavouriteRecipesScrollPane.setViewportView(FavouriteRecipesTable);
+
+		JScrollPane RecRecipesScrollPane = new JScrollPane();
+		RecRecipesScrollPane.setBounds(41, 311, 701, 189);
+		FavouritePanel.add(RecRecipesScrollPane);
+
+		RecRecipesColumns = new String[] { "Recipe Name" };
+		Object[][] RecRecipesData = {};
+		RecRecipesTableModel = new DefaultTableModel(RecRecipesData, RecRecipesColumns);
+
+		RecRecipesTable = new JTable(RecRecipesTableModel);
+		RecRecipesTable.setBounds(0, 0, 1, 1);
+		RecRecipesScrollPane.setViewportView(RecRecipesTable);
 
 		RecipeFinderPanel = new JPanel();
 		ViewPanel.add(RecipeFinderPanel, "RecipeFinderPanel");
@@ -1019,6 +1066,53 @@ public class MealManagementInterface extends JFrame {
 				.setModel(new DefaultTableModel(new Object[][] { { "Pancakes", "Porridge", "Rasmalai", null }, },
 						new String[] { "New column", "New column", "New column", "New column" }));
 		RecommendationsSplitPane.setRightComponent(RecipeRecommendationsTable);
+
+		JPanel SettingsPanel = new JPanel();
+		ViewPanel.add(SettingsPanel, "SettingsViewPanel");
+		SettingsPanel.setLayout(null);
+
+		JLabel ChangePasswordLabel = new JLabel("Change Password: ");
+		ChangePasswordLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		ChangePasswordLabel.setBounds(60, 108, 187, 41);
+		SettingsPanel.add(ChangePasswordLabel);
+
+		ChangePasswordTextField = new JTextField();
+		ChangePasswordTextField.setBounds(222, 108, 198, 37);
+		SettingsPanel.add(ChangePasswordTextField);
+		ChangePasswordTextField.setColumns(10);
+
+		JLabel LogoutLabel = new JLabel("Log Out?");
+		LogoutLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				cardLayout.show(cardLayoutPane, "LoggingPanel");
+			}
+		});
+		LogoutLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		LogoutLabel.setBounds(60, 199, 93, 31);
+		Font font = LogoutLabel.getFont();
+		Map attributes = font.getAttributes();
+		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+		LogoutLabel.setFont(font.deriveFont(attributes));
+		SettingsPanel.add(LogoutLabel);
+
+		JButton ChangeButton = new JButton("Change");
+		ChangeButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (ChangePasswordTextField.getText().length() != 0) {
+					try {
+						SQLManager.UpdatePassword(mUserID, ChangePasswordTextField.getText());
+						ChangePasswordTextField.setText("");
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		ChangeButton.setBounds(430, 108, 93, 37);
+		SettingsPanel.add(ChangeButton);
 
 		// login function
 		// get connection to the database

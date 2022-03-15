@@ -188,6 +188,25 @@ public class SQLManager {
 		}
 	}
 
+	public static String TotalFridgeItemsQuery() throws Exception {
+		String query = "";
+		String totalCount = null;
+		try {
+			Connection getConnection = getConnection();
+			query = "SELECT COUNT(idItems) FROM store_db.items;";
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = st.executeQuery(query);
+			while (rs.next()) {
+				totalCount = rs.getString(1);
+			}
+			return totalCount;
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static ResultSet RecipeQuery() throws Exception {
 		String query = "";
 		try {
@@ -307,6 +326,38 @@ public class SQLManager {
 			}
 
 			return FavouriteRecipeList;
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static ResultSet getFavouriteRecipesResultSet(String customerId) throws Exception {
+		String query = "";
+		try {
+			Connection getConnection = getConnection();
+			query = "Select p.recipeName from store_db.recipe p LEFT JOIN store_db.favourites a ON p.idrecipe = a.recipeId where a.customerID = '"
+					+ customerId + "';";
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = st.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Object UpdatePassword(String customerId, String newPassword) throws Exception {
+		String query = "";
+		try {
+			Connection getConnection = getConnection();
+			query = "UPDATE store_db.customer SET Password = '" + newPassword + "' WHERE idcustomer = '" + customerId
+					+ "';";
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			int rs = st.executeUpdate(query);
+			return rs;
 		} catch (SQLException e) {
 			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
@@ -464,6 +515,26 @@ public class SQLManager {
 			SuggestedRecipeString += SuggestedRecipes.get(i) + ", ";
 		}
 		suggestedRecipesLabel.setText(SuggestedRecipeString);
+	}
+
+	public static void populateSuggestedRecipesInTable(String customerId, JTable suggestedRecipesTable)
+			throws Exception {
+		// give arraylist of recipe ids
+
+		ArrayList<HashMap<String, String>> similarUsers = findSimilarUsers(customerId);
+		String similarUserId = similarUsers.get(0).get("UserID");
+
+		ArrayList<String> SuggestedRecipes = getFavouriteRecipes(similarUserId);
+		String SuggestedRecipeString = "Suggested Recipes: ";
+
+		DefaultTableModel suggestedRecipesTableModel = new DefaultTableModel();
+		suggestedRecipesTable = new JTable(suggestedRecipesTableModel);
+		for (int i = 0; i < SuggestedRecipes.size(); i++) {
+			SuggestedRecipeString += SuggestedRecipes.get(i);
+			Object[] data = { SuggestedRecipeString };
+			suggestedRecipesTableModel.addRow(data);
+		}
+
 	}
 
 	public static HashMap<String, String> getRecipeDetails(int recipeID) throws Exception, SQLException {
