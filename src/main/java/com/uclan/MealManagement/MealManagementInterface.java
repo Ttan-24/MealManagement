@@ -113,42 +113,36 @@ public class MealManagementInterface extends JFrame {
 		// looking through the recipes
 		for (int i = 0; i < RecipeList.size(); i++) {
 			Recipe EachRecipe = RecipeList.get(i);
-			System.out.println("Checking if we can make" + EachRecipe.mName);
+			// System.out.println("Checking if we can make" + EachRecipe.mName);
 			boolean canMakeRecipe = true;
-
-			boolean StopHere = false;
-			if (EachRecipe.mName == "Hawaii Rice Dish") {
-				boolean stopHere = true;
-				StopHere = true;
-			}
 
 			// looking through each ingredients in the each recipe
 			for (int j = 0; j < EachRecipe.IngredientList.size(); j++) {
 
 				String EachIngredient = EachRecipe.IngredientList.get(j);
 
-				System.out.println("do I have?: " + EachIngredient);
+				// System.out.println("do I have?: " + EachIngredient);
 				boolean foundItem = false;
 
 				// looking through each fridge ingredients
 				for (int k = 0; k < FridgeItemList.size(); k++) {
 					String EachFridgeItem = FridgeItemList.get(k);
-					System.out.println("Checking each fridge item");
+					// System.out.println("Checking each fridge item");
 
 					// looking if recipe ingredient is in fridge
 					if (EachFridgeItem.equals(EachIngredient)) {
-						System.out.println("matched : " + EachIngredient);
-						System.out.println("I will put that in found ingredients list");
+						// System.out.println("matched : " + EachIngredient);
+						// System.out.println("I will put that in found ingredients list");
 						foundItem = true;
 					} else {
-						System.out.println("this isnt what i am looking for" + EachFridgeItem);
+						// System.out.println("this isnt what i am looking for" + EachFridgeItem);
 					}
 
 				}
 				if (foundItem == false) {
 					canMakeRecipe = false;
 				}
-				System.out.println();
+				// System.out.println();
 			}
 			// looking at end of each recipe
 			if (canMakeRecipe) {
@@ -345,43 +339,59 @@ public class MealManagementInterface extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				viewCardLayout.show(ViewPanel, "MealPlanViewPanel");
 
-				//
+				ArrayList<String> BreakfastList = new ArrayList<String>();
+				ArrayList<String> LunchList = new ArrayList<String>();
+				ArrayList<String> DinnerList = new ArrayList<String>();
 				try {
-					String recipeName = null;
-					String recipeMealTime = null;
-					ResultSet rsRecipeQuery = SQLManager.RecipeQuery();
-					while (rsRecipeQuery.next()) {
-						recipeName = rsRecipeQuery.getString(2);
-						recipeMealTime = rsRecipeQuery.getString(3);
-						Recipe recipe = new Recipe(recipeName, recipeMealTime);
-						recipe.IngredientList = SQLManager.getIngredientsOfRecipe(rsRecipeQuery.getString(1));
-						mRecipeList.add(recipe);
-					}
+					ArrayList<Recipe> RecipeMealPlan = MealAlgorithmManager.CalculateMealPlan(mUserID, BreakfastList,
+							LunchList, DinnerList);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 
-				// algorithm in which things can be made
-				mPossibleRecipes = detectRecipe(FridgeIngredientList, mRecipeList);
+				//
+//				try {
 
-				ArrayList<String> BreakfastList = new ArrayList<String>();
-				ArrayList<String> LunchList = new ArrayList<String>();
-				ArrayList<String> DinnerList = new ArrayList<String>();
-				// finds all breakfast and makes them into new list
-				for (int i = 0; i < mPossibleRecipes.size(); i++) {
-					String RecipeName = mPossibleRecipes.get(i).mName;
-					String mealTime = mPossibleRecipes.get(i).mMealTime;
-					if ("breakfast".equals(mealTime)) {
-						BreakfastList.add(RecipeName);
-					}
-					if ("lunch".equals(mealTime)) {
-						LunchList.add(RecipeName);
-					}
-					if ("dinner".equals(mealTime)) {
-						DinnerList.add(RecipeName);
-					}
-				}
+				///// test
+
+				///////
+//					String recipeName = null;
+//					String recipeMealTime = null;
+//					ResultSet rsRecipeQuery = SQLManager.RecipeQuery();
+//					while (rsRecipeQuery.next()) {
+//						recipeName = rsRecipeQuery.getString(2);
+//						recipeMealTime = rsRecipeQuery.getString(3);
+//						Recipe recipe = new Recipe(recipeName, recipeMealTime);
+//						recipe.IngredientList = SQLManager.getIngredientsOfRecipe(rsRecipeQuery.getString(1));
+//						mRecipeList.add(recipe);
+//					}
+//				} catch (Exception e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//
+//				// algorithm in which things can be made
+//				mPossibleRecipes = detectRecipe(FridgeIngredientList, mRecipeList);
+//
+//				ArrayList<String> BreakfastList = new ArrayList<String>();
+//				ArrayList<String> LunchList = new ArrayList<String>();
+//				ArrayList<String> DinnerList = new ArrayList<String>();
+//				// finds all breakfast and makes them into new list
+//				for (int i = 0; i < mPossibleRecipes.size(); i++) {
+//					String RecipeName = mPossibleRecipes.get(i).mName;
+//					String mealTime = mPossibleRecipes.get(i).mMealTime;
+//					if ("breakfast".equals(mealTime)) {
+//						BreakfastList.add(RecipeName);
+//					}
+//					if ("lunch".equals(mealTime)) {
+//						LunchList.add(RecipeName);
+//					}
+//					if ("dinner".equals(mealTime)) {
+//						DinnerList.add(RecipeName);
+//					}
+//				}
+
 				MealPlanTableModel.setRowCount(0);
 
 				for (int j = 0; j < 3; j++) {
@@ -706,15 +716,26 @@ public class MealManagementInterface extends JFrame {
 		JTableHeader MealPlanHeader = MealPlanTable.getTableHeader();
 		MealPlanHeader.setBackground(lightPink);
 		MealPlanHeader.setForeground(black);
-		MealPlanHeader.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+		MealPlanHeader.setFont(new Font("Segoe UI", Font.PLAIN, 24));
 		MealPlanTable.setBackground(white);
 		MealPlanTable.setForeground(black); // the text colour will change
-		MealPlanTable.setRowHeight(32);
-		MealPlanTable.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		MealPlanTable.setRowHeight(110);
+		MealPlanTable.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 		// removes grid lines from the done table
 		MealPlanTable.setShowGrid(false);
-		MealPlanTable.setShowVerticalLines(false);
+		MealPlanTable.setShowVerticalLines(true);
 		MealPlanTable.setShowHorizontalLines(true);
+		DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+		rightRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+		MealPlanTable.getColumnModel().getColumn(0).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(6).setCellRenderer(rightRenderer);
+		MealPlanTable.getColumnModel().getColumn(7).setCellRenderer(rightRenderer);
 		MealPlanScrollPane.setViewportView(MealPlanTable);
 
 		JLabel MealPlanLabel = new JLabel("MEAL PLAN FOR YOU");
