@@ -35,7 +35,7 @@ public class SQLManager {
 			Class.forName(driver);
 
 			Connection conn = DriverManager.getConnection(url, username, password);
-			System.out.println("Connected successfully Man");
+			System.out.println("Connected successfully");
 			return conn;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -563,26 +563,34 @@ public class SQLManager {
 		suggestedRecipesLabel.setText(SuggestedRecipeString);
 	}
 
-	public static void populateSuggestedRecipesInTable(String customerId, JTable suggestedRecipesTable, String[] col)
+	public static void populateSuggestedRecipesInTable(String customerId, JTable suggestedRecipesTable)
 			throws Exception {
-		// give arraylist of recipe ids
-
+		// Find similar users
 		ArrayList<HashMap<String, String>> similarUsers = findSimilarUsers(customerId);
 		String similarUserId = similarUsers.get(0).get("UserID");
 
+		// Get suggested recipes
 		ArrayList<String> SuggestedRecipes = getFavouriteRecipes(similarUserId);
-		String SuggestedRecipeString = "";
 
+		// Initialise table model
 		DefaultTableModel suggestedRecipesTableModel = new DefaultTableModel();
-		suggestedRecipesTableModel.addColumn(col);
-		suggestedRecipesTable = new JTable(suggestedRecipesTableModel);
-		for (int i = 0; i < SuggestedRecipes.size(); i++) {
-			SuggestedRecipeString += SuggestedRecipes.get(i);
-			Object[] data = { SuggestedRecipeString };
 
-			suggestedRecipesTableModel.addRow(data);
+		// Add rows for suggested recipes
+		suggestedRecipesTableModel.setRowCount(0);
+		for (int i = 0; i < SuggestedRecipes.size(); i++) {
+			suggestedRecipesTableModel.addRow(new Object[] {});
 		}
-		// suggestedRecipesTableModel.setValueAt(SuggestedRecipeString, i, 1);
+
+		// Add columns
+		suggestedRecipesTableModel.addColumn("Recipe Name");
+
+		// Populate model
+		for (int i = 0; i < SuggestedRecipes.size(); i++) {
+			String recipeName = SuggestedRecipes.get(i);
+			suggestedRecipesTableModel.setValueAt(recipeName, i, 0);
+		}
+
+		// Set table model
 		suggestedRecipesTable.setModel(suggestedRecipesTableModel);
 	}
 
@@ -608,5 +616,42 @@ public class SQLManager {
 			RecipeDetailMap.put("RecipeInstructions", rs.getString(10));
 		}
 		return RecipeDetailMap;
+	}
+
+	public static int getRecipeID(String recipeName) throws Exception, SQLException {
+		String query = "";
+		Connection getConnection = getConnection();
+		query = "SELECT * FROM store_db.recipe where recipeName = '" + recipeName + "'";
+		Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs = st.executeQuery(query);
+		rs.next();
+		return Integer.parseInt(rs.getString(1));
+	}
+
+	public static void decrementIngredient(String ingredientName) throws Exception {
+		// Needs an SQL statement to decrement the quantity of this ingredient
+		String query = "";
+		String updateQuery = "";
+		String quantity = null;
+		try {
+			// Connection
+			Connection getConnection = getConnection();
+			query = "SELECT quantity FROM store_db.items where itemName = '" + ingredientName + "';";
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = st.executeQuery(query);
+			while (rs.next()) {
+				quantity = rs.getString(1);
+			}
+
+			int newQuantity = Integer.parseInt(quantity) - 1;
+
+			updateQuery = "UPDATE store_db.items SET quantity = '" + newQuantity + "' WHERE itemName = '"
+					+ ingredientName + "';";
+			Statement st2 = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			int rs2 = st2.executeUpdate(updateQuery);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class MealAlgorithmManager {
 	// Params
-	public static int mealCountMax = 7 * 3;
+	public static int mealPlanDays = 7;
 
 	// Data
 	public static ArrayList<String> fridgeIngredients = new ArrayList<String>();
@@ -23,48 +23,40 @@ public class MealAlgorithmManager {
 		mealList = new ArrayList<Recipe>();
 
 		// Do initial update of possible recipes
-		UpdatePossibleRecipes();
+		UpdatePossibleRecipes(UserId);
+		System.out.println("I can make " + possibleRecipes.size() + " different recipes");
 
-		System.out.println("I can make " + possibleRecipes.size() + " recipes");
+		// Get list of recipes for different meal times
+		ArrayList<Recipe> breakfastRecipeList = makeMealTimeList("breakfast", UserId);
+		ArrayList<Recipe> lunchRecipeList = makeMealTimeList("lunch", UserId);
+		ArrayList<Recipe> dinnerRecipeList = makeMealTimeList("dinner", UserId);
 
-		// Make meal plan
-		while (mealList.size() < mealCountMax && possibleRecipes.size() > 0) {
-			// Get next available recipe -- can determine which is best here
-			Recipe breakfastRecipe = getBreakfastRecipe();
-			Recipe lunchRecipe = getLunchRecipe();
-			Recipe dinnerRecipe = getDinnerRecipe();
-
-			// Add a meal if possible - needs to be split into meal times
-			System.out.println("Adding " + breakfastRecipe.mName);
-			mealList.add(breakfastRecipe);
-			BreakfastList.add(breakfastRecipe.mName);
-
-			System.out.println("Adding " + lunchRecipe.mName);
-			mealList.add(lunchRecipe);
-			LunchList.add(lunchRecipe.mName);
-
-			System.out.println("Adding " + dinnerRecipe.mName);
-			mealList.add(dinnerRecipe);
-			DinnerList.add(dinnerRecipe.mName);
-
-			// remove meal time recipe ingredients from fridge
-			removeRecipeIngredientsFromFridge(breakfastRecipe);
-			removeRecipeIngredientsFromFridge(lunchRecipe);
-			removeRecipeIngredientsFromFridge(dinnerRecipe);
-
-			// Update possible recipes
-			UpdatePossibleRecipes();
-
-			// Print recipe status
-			System.out.println("I can make " + possibleRecipes.size() + " recipes");
+		// Declare errors
+		if (breakfastRecipeList == null) {
+			System.out.print("Could not make enough breakfast meals");
+		}
+		if (lunchRecipeList == null) {
+			System.out.print("Could not make enough lunch meals");
+		}
+		if (dinnerRecipeList == null) {
+			System.out.print("Could not make enough dinner meals");
 		}
 
-		// Output end result
-		if (mealList.size() == mealCountMax) {
-			System.out.println("All meals generated");
-		} else {
-			System.out.print("Did not have enough ingredients");
+		// Update string lists for JTable population
+		for (int i = 0; i < breakfastRecipeList.size(); i++) {
+			BreakfastList.add(breakfastRecipeList.get(i).mName);
+			mealList.add(breakfastRecipeList.get(i));
 		}
+		for (int i = 0; i < lunchRecipeList.size(); i++) {
+			LunchList.add(lunchRecipeList.get(i).mName);
+			mealList.add(lunchRecipeList.get(i));
+		}
+		for (int i = 0; i < dinnerRecipeList.size(); i++) {
+			DinnerList.add(dinnerRecipeList.get(i).mName);
+			mealList.add(dinnerRecipeList.get(i));
+		}
+
+		// Return
 		return mealList;
 	}
 
@@ -95,33 +87,39 @@ public class MealAlgorithmManager {
 		}
 	}
 
-	public static Recipe getBreakfastRecipe() {
-		Recipe recipe;
-		for (int i = 0; i < possibleRecipes.size(); i++) {
-			recipe = possibleRecipes.get(i);
-			if (recipe.mMealTime.equals("breakfast")) {
-				return recipe;
+	// This function gives 7 recipes, all for one time (eg lunch, breakfast, dinner)
+	public static ArrayList<Recipe> makeMealTimeList(String mealTime, String UserId) throws Exception {
+		// Make list
+		ArrayList<Recipe> recipeList = new ArrayList<Recipe>();
+
+		// Make meal plan
+		for (int i = 0; i < mealPlanDays; i++) {
+			// Get next available recipe -- can determine which is best here
+			Recipe recipe = getRecipeAtMealTime(mealTime);
+
+			// add recipes to list
+			if (recipe != null) {
+				recipeList.add(recipe);
+				removeRecipeIngredientsFromFridge(recipe);
 			}
+
+			// Update possible recipes
+			UpdatePossibleRecipes(UserId);
 		}
-		return null;
+
+		// Output end result
+		if (recipeList.size() == mealPlanDays) {
+			return recipeList;
+		} else {
+			return null;
+		}
 	}
 
-	public static Recipe getLunchRecipe() {
+	public static Recipe getRecipeAtMealTime(String mealTime) {
 		Recipe recipe;
 		for (int i = 0; i < possibleRecipes.size(); i++) {
 			recipe = possibleRecipes.get(i);
-			if (recipe.mMealTime.equals("lunch")) {
-				return recipe;
-			}
-		}
-		return null;
-	}
-
-	public static Recipe getDinnerRecipe() {
-		Recipe recipe;
-		for (int i = 0; i < possibleRecipes.size(); i++) {
-			recipe = possibleRecipes.get(i);
-			if (recipe.mMealTime.equals("dinner")) {
+			if (recipe.mMealTime.equals(mealTime)) {
 				return recipe;
 			}
 		}
@@ -149,7 +147,7 @@ public class MealAlgorithmManager {
 		}
 	}
 
-	public static void UpdatePossibleRecipes() {
+	public static void UpdatePossibleRecipes(String userID) throws Exception {
 		// Refresh possible recipes
 		possibleRecipes.clear();
 
@@ -191,5 +189,63 @@ public class MealAlgorithmManager {
 				possibleRecipes.add(recipe);
 			}
 		}
+
+		// Sort recipe by favourite
+		possibleRecipes = sortMealPlan(userID, possibleRecipes);
+	}
+
+	public static ArrayList<Recipe> sortMealPlan(String customerId, ArrayList<Recipe> mealPlan) throws Exception {
+		// Get favourite recipe from db
+		ResultSet rsFavouriteRecipeQuery = SQLManager.getFavouriteRecipesResultSet(customerId);
+
+		// Put favourite recipes from db into favourite arraylist
+		ArrayList<String> favouriteRecipeList = new ArrayList<String>();
+		while (rsFavouriteRecipeQuery.next()) {
+			favouriteRecipeList.add(rsFavouriteRecipeQuery.getString(1));
+		}
+
+		// Create new meal plan for sorted list
+		ArrayList<Recipe> newMealPlanList = new ArrayList<Recipe>();
+
+		// Iterate through the meal list // add favourites first
+		for (int i = 0; i < mealPlan.size(); i++) {
+			// Set variables
+			Recipe recipe = mealPlan.get(i);
+			boolean recipeIsFavourite = false;
+
+			// Check if recipe is favourite
+			for (int j = 0; j < favouriteRecipeList.size(); j++) {
+				if (mealPlan.get(i).mName.equals(favouriteRecipeList.get(j))) {
+					recipeIsFavourite = true;
+				}
+			}
+
+			// Add if favourite
+			if (recipeIsFavourite) {
+				newMealPlanList.add(recipe);
+			}
+		}
+
+		// add non favourites
+		for (int i = 0; i < mealPlan.size(); i++) {
+			// Set variables
+			Recipe recipe = mealPlan.get(i);
+			boolean recipeIsFavourite = false;
+
+			// Check if recipe is favourite
+			for (int j = 0; j < favouriteRecipeList.size(); j++) {
+				if (mealPlan.get(i).mName.equals(favouriteRecipeList.get(j))) {
+					recipeIsFavourite = true;
+				}
+			}
+
+			// Add if not favourite
+			if (!recipeIsFavourite) {
+				newMealPlanList.add(recipe);
+			}
+		}
+
+		// Set new meal plan
+		return newMealPlanList;
 	}
 }

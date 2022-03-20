@@ -12,18 +12,23 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -98,6 +103,16 @@ public class MealManagementInterface extends JFrame {
 	private JPanel FridgePanel;
 	private ArrayList<String> FridgeTableColumnName;
 	private ArrayList<String> FavouriteRecipesColumnName;
+	private JLabel DateTextLabel;
+	private JButton GenerateMealPlanButton;
+	private JButton SaveMealPlanButton;
+	private JButton FinishWeekButton;
+
+	private Date date = new Date();
+	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	private Calendar c = Calendar.getInstance();
+	private JTextField DietTextField;
+	private JTextField CalorieIntakeTextField;
 
 	public static void deleteAllRows(final DefaultTableModel model) {
 		for (int i = model.getRowCount() - 1; i >= 0; i--) {
@@ -219,13 +234,19 @@ public class MealManagementInterface extends JFrame {
 		LoggingPanel.setLayout(null);
 
 		JLabel UsernameLabel = new JLabel("Username");
-		UsernameLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		UsernameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		UsernameLabel.setBounds(518, 212, 100, 40);
+		UsernameLabel.setForeground(Color.WHITE);
+		UsernameLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		UsernameLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		UsernameLabel.setBounds(451, 220, 167, 40);
 		LoggingPanel.add(UsernameLabel);
 
-		JButton LoginButton = new JButton("Login");
-		LoginButton.setFont(new Font("Tahoma", Font.BOLD, 11));
+		JButton LoginButton = new JRoundedButton("Login");
+		LoginButton.setBackground(Color.WHITE);
+		LoginButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		LoginButton.setFont(new Font("Tahoma", Font.BOLD, 18));
 		LoginButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -277,23 +298,26 @@ public class MealManagementInterface extends JFrame {
 			}
 		});
 		LoginButton.setToolTipText("take me to main panel");
-		LoginButton.setBounds(682, 413, 89, 31);
+		LoginButton.setBounds(575, 412, 116, 57);
 		LoggingPanel.add(LoginButton);
 
 		JLabel PasswordLabel = new JLabel("Password");
-		PasswordLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		PasswordLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		PasswordLabel.setBounds(518, 286, 100, 40);
+		PasswordLabel.setForeground(Color.WHITE);
+		PasswordLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		PasswordLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		PasswordLabel.setBounds(451, 300, 138, 40);
 		LoggingPanel.add(PasswordLabel);
 
-		UsernameTextField = new JTextField();
-		UsernameTextField.setBounds(682, 215, 138, 40);
+		UsernameTextField = new JRoundedTextField(0);
+		UsernameTextField.setBounds(628, 209, 192, 51);
+		UsernameTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		LoggingPanel.add(UsernameTextField);
 		UsernameTextField.setColumns(10);
 
-		PasswordTextField = new JPasswordField();
+		PasswordTextField = new JRoundedPasswordField(0);
 		PasswordTextField.setColumns(10);
-		PasswordTextField.setBounds(682, 289, 138, 40);
+		PasswordTextField.setBounds(628, 289, 192, 51);
+		PasswordTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		LoggingPanel.add(PasswordTextField);
 
 		// The main panel added to the parent
@@ -338,99 +362,6 @@ public class MealManagementInterface extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				viewCardLayout.show(ViewPanel, "MealPlanViewPanel");
-
-				ArrayList<String> BreakfastList = new ArrayList<String>();
-				ArrayList<String> LunchList = new ArrayList<String>();
-				ArrayList<String> DinnerList = new ArrayList<String>();
-				try {
-					ArrayList<Recipe> RecipeMealPlan = MealAlgorithmManager.CalculateMealPlan(mUserID, BreakfastList,
-							LunchList, DinnerList);
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				//
-//				try {
-
-				///// test
-
-				///////
-//					String recipeName = null;
-//					String recipeMealTime = null;
-//					ResultSet rsRecipeQuery = SQLManager.RecipeQuery();
-//					while (rsRecipeQuery.next()) {
-//						recipeName = rsRecipeQuery.getString(2);
-//						recipeMealTime = rsRecipeQuery.getString(3);
-//						Recipe recipe = new Recipe(recipeName, recipeMealTime);
-//						recipe.IngredientList = SQLManager.getIngredientsOfRecipe(rsRecipeQuery.getString(1));
-//						mRecipeList.add(recipe);
-//					}
-//				} catch (Exception e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//
-//				// algorithm in which things can be made
-//				mPossibleRecipes = detectRecipe(FridgeIngredientList, mRecipeList);
-//
-//				ArrayList<String> BreakfastList = new ArrayList<String>();
-//				ArrayList<String> LunchList = new ArrayList<String>();
-//				ArrayList<String> DinnerList = new ArrayList<String>();
-//				// finds all breakfast and makes them into new list
-//				for (int i = 0; i < mPossibleRecipes.size(); i++) {
-//					String RecipeName = mPossibleRecipes.get(i).mName;
-//					String mealTime = mPossibleRecipes.get(i).mMealTime;
-//					if ("breakfast".equals(mealTime)) {
-//						BreakfastList.add(RecipeName);
-//					}
-//					if ("lunch".equals(mealTime)) {
-//						LunchList.add(RecipeName);
-//					}
-//					if ("dinner".equals(mealTime)) {
-//						DinnerList.add(RecipeName);
-//					}
-//				}
-
-				MealPlanTableModel.setRowCount(0);
-
-				for (int j = 0; j < 3; j++) {
-
-					MealPlanTableModel.addRow(new Object[] {});
-				}
-
-				// for (int j = 0; j < 8; j++) {
-				// for (int i = 0; i < 8; i++) {
-				// MealPlanTable.setValueAt("Breakfast", i, j);
-				// MealPlanTable.setValueAt("Lunch", i, j);
-				// MealPlanTable.setValueAt("Dinner", i, j);
-				// }
-				// }
-				MealPlanTable.setValueAt("breakfast", 0, 0);
-				MealPlanTable.setValueAt("lunch", 1, 0);
-				MealPlanTable.setValueAt("dinner", 2, 0);
-				int maxColumn = 8;
-				int maxRow = 3;
-
-				for (int i = 1; i < maxColumn; i++) {
-					for (int j = 0; j < maxRow; j++) {
-
-						int breakfastIndex = (int) (Math.random() * BreakfastList.size());
-						int lunchIndex = (int) (Math.random() * LunchList.size());
-						int dinnerIndex = (int) (Math.random() * DinnerList.size());
-						if (j == 0) {
-							MealPlanTable.setValueAt(BreakfastList.get(breakfastIndex), j, i);
-						}
-
-						if (j == 1) {
-							MealPlanTable.setValueAt(LunchList.get(lunchIndex), j, i);
-						}
-						if (j == 2) {
-							MealPlanTable.setValueAt(DinnerList.get(dinnerIndex), j, i);
-						}
-					}
-				}
-
 			}
 		});
 		MealPlanButton.setBounds(0, 155, 78, 49);
@@ -476,7 +407,7 @@ public class MealManagementInterface extends JFrame {
 					SQLManager.populateTableWithResultSet(FavouriteRecipesTable, rsFavouriteRecipeQuery,
 							FavouriteRecipesColumnName);
 
-					SQLManager.populateSuggestedRecipesInTable(mUserID, RecRecipesTable, RecRecipesColumns);
+					SQLManager.populateSuggestedRecipesInTable(mUserID, RecRecipesTable);
 
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -628,17 +559,20 @@ public class MealManagementInterface extends JFrame {
 
 		ItemNameTextField = new JRoundedTextField(0);
 		ItemNameTextField.setBounds(34, 30, 222, 53);
+		ItemNameTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		FridgePanel.add(ItemNameTextField);
 		ItemNameTextField.setColumns(10);
 
 		QuantityTextField = new JRoundedTextField(0);
 		QuantityTextField.setColumns(10);
 		QuantityTextField.setBounds(591, 30, 222, 53);
+		QuantityTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		FridgePanel.add(QuantityTextField);
 
 		CaloriesTextField = new JRoundedTextField(0);
 		CaloriesTextField.setColumns(10);
 		CaloriesTextField.setBounds(866, 30, 222, 53);
+		CaloriesTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		FridgePanel.add(CaloriesTextField);
 
 		JLabel ItemNameLabel = new JLabel("Ingredient Name");
@@ -668,6 +602,7 @@ public class MealManagementInterface extends JFrame {
 		BestBeforeTextField = new JRoundedTextField(0);
 		BestBeforeTextField.setColumns(10);
 		BestBeforeTextField.setBounds(310, 30, 222, 53);
+		BestBeforeTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		FridgePanel.add(BestBeforeTextField);
 
 		JButton DeleteFridgeIngredientsButton = new JButton();
@@ -711,7 +646,13 @@ public class MealManagementInterface extends JFrame {
 				"Sunday" };
 		Object[][] MealPlanData = {};
 		MealPlanTableModel = new DefaultTableModel(MealPlanData, MealPlanColumns);
-		MealPlanTable = new JTable(MealPlanTableModel);
+		MealPlanTable = new JTable(MealPlanTableModel) {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			};
+		};
 		MealPlanTable.setBounds(32, 99, 709, 378);
 		JTableHeader MealPlanHeader = MealPlanTable.getTableHeader();
 		MealPlanHeader.setBackground(lightPink);
@@ -736,6 +677,65 @@ public class MealManagementInterface extends JFrame {
 		MealPlanTable.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
 		MealPlanTable.getColumnModel().getColumn(6).setCellRenderer(rightRenderer);
 		MealPlanTable.getColumnModel().getColumn(7).setCellRenderer(rightRenderer);
+
+		MealPlanTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// If a user in the recipe table is double clicked then that recipes details are
+				// displayed opening the recipe details panel
+
+				if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1
+						&& MealPlanTable.getSelectedRows().length == 1 && MealPlanTable.getSelectedColumn() != 0) {
+
+					viewCardLayout.show(ViewPanel, "RecipeDetailsPanel");
+
+					// Fill in details
+					try {
+						// Get recipe details
+//						RecipeTable.getSelectedRow() + 1
+						int selectedRow = MealPlanTable.getSelectedRow();
+						int selectedColumn = MealPlanTable.getSelectedColumn();
+						String recipeName = (String) MealPlanTable.getValueAt(selectedRow, selectedColumn);
+						int recipeID = SQLManager.getRecipeID(recipeName);
+						HashMap<String, String> recipeDetails = SQLManager.getRecipeDetails(recipeID);
+
+						String recipeDescription = recipeDetails.get("RecipeDescription");
+						// String recipeName = recipeDetails.get("RecipeName");
+						String recipeDifficulty = recipeDetails.get("RecipeDifficulty");
+						String recipeTime = recipeDetails.get("recipeTime");
+						String mealTime = recipeDetails.get("mealTime");
+						String recipeServings = recipeDetails.get("RecipeServings");
+						String recipeCalories = recipeDetails.get("RecipeCalories");
+						String recipeDietCategory = recipeDetails.get("dietCategory");
+						ArrayList<String> recipeIngredients = SQLManager
+								.getIngredientsOfRecipe(Integer.toString(recipeID)); // need to
+																						// change
+						// this
+						String recipeIngredientsString = "";
+						String recipeInstructions = recipeDetails.get("RecipeInstructions");
+
+						// Create string from ingredients
+						for (int i = 0; i < recipeIngredients.size(); i++) {
+							recipeIngredientsString += recipeIngredients.get(i) + "\n";
+						}
+
+						// Set recipe details in UI
+						RecipeDescriptionTextArea.setText(recipeDescription);
+						RecipeDetailsTitle.setText(recipeName);
+						RecipeProcessDetailsTextArea.setText("Prep time: " + recipeTime + "\n" + "Difficulty: "
+								+ recipeDifficulty + "\n" + "Servings: " + recipeServings);
+						NutritionTextArea.setText("Diet: " + recipeDietCategory + "\n" + "Calories: " + recipeCalories);
+						RecipeIngredientsTextArea.setText(recipeIngredientsString);
+						RecipeInstructionsTextArea.setText(recipeInstructions);
+
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+
+			}
+		});
 		MealPlanScrollPane.setViewportView(MealPlanTable);
 
 		JLabel MealPlanLabel = new JLabel("MEAL PLAN FOR YOU");
@@ -743,6 +743,142 @@ public class MealManagementInterface extends JFrame {
 		MealPlanLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		MealPlanLabel.setBounds(358, 11, 456, 57);
 		MealPlanPanel.add(MealPlanLabel);
+
+		// Generate meal plan button
+		GenerateMealPlanButton = new JButton("Generate New Meal Plan");
+		GenerateMealPlanButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// Declare meal plan variables
+				ArrayList<Recipe> RecipeMealPlan;
+				ArrayList<String> BreakfastList = new ArrayList<String>();
+				ArrayList<String> LunchList = new ArrayList<String>();
+				ArrayList<String> DinnerList = new ArrayList<String>();
+
+				// Get meal plan
+				try {
+					RecipeMealPlan = MealAlgorithmManager.CalculateMealPlan(mUserID, BreakfastList, LunchList,
+							DinnerList);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				// Create rows for meal plan table
+				MealPlanTableModel.setRowCount(0);
+				for (int j = 0; j < 3; j++) {
+
+					MealPlanTableModel.addRow(new Object[] {});
+				}
+
+				// Set up columns for meal plan JTable
+				MealPlanTable.setValueAt("breakfast", 0, 0);
+				MealPlanTable.setValueAt("lunch", 1, 0);
+				MealPlanTable.setValueAt("dinner", 2, 0);
+				int maxColumn = 8;
+				int maxRow = 3;
+
+				// Populate JTable with meal plan
+				for (int i = 1; i < maxColumn; i++) {
+					for (int j = 0; j < maxRow; j++) {
+						int breakfastIndex = (int) (Math.random() * BreakfastList.size());
+						int lunchIndex = (int) (Math.random() * LunchList.size());
+						int dinnerIndex = (int) (Math.random() * DinnerList.size());
+						if (j == 0) {
+							MealPlanTable.setValueAt(BreakfastList.get(breakfastIndex), j, i);
+							BreakfastList.remove(breakfastIndex);
+						}
+
+						if (j == 1) {
+							MealPlanTable.setValueAt(LunchList.get(lunchIndex), j, i);
+							LunchList.remove(lunchIndex);
+						}
+						if (j == 2) {
+							MealPlanTable.setValueAt(DinnerList.get(dinnerIndex), j, i);
+							DinnerList.remove(dinnerIndex);
+						}
+					}
+				}
+
+				// Enable save button
+				SaveMealPlanButton.setEnabled(true);
+			}
+		});
+		GenerateMealPlanButton.setFont(new Font("Tahoma", Font.BOLD, 17));
+		GenerateMealPlanButton.setBounds(435, 642, 258, 57);
+		MealPlanPanel.add(GenerateMealPlanButton);
+
+		SaveMealPlanButton = new JButton("Save Meal Plan");
+		SaveMealPlanButton.setEnabled(false);
+		SaveMealPlanButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// Disable buttons
+				GenerateMealPlanButton.setEnabled(false);
+				SaveMealPlanButton.setEnabled(false);
+				FinishWeekButton.setEnabled(true);
+
+				// Remove ingredients from database
+				for (int i = 0; i < MealAlgorithmManager.mealList.size(); i++) {
+					// Get recipe
+					Recipe recipe = MealAlgorithmManager.mealList.get(i);
+
+					// Find all ingredients
+					for (int j = 0; j < recipe.IngredientList.size(); j++) {
+						// Get ingredient
+						String ingredient = recipe.IngredientList.get(j);
+
+						// Remove
+						try {
+							SQLManager.decrementIngredient(ingredient);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+		SaveMealPlanButton.setFont(new Font("Tahoma", Font.BOLD, 17));
+		SaveMealPlanButton.setBounds(715, 642, 258, 57);
+		MealPlanPanel.add(SaveMealPlanButton);
+
+		JLabel DateLabel = new JLabel("Date: ");
+		DateLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		DateLabel.setBounds(1096, 63, 41, 36);
+		MealPlanPanel.add(DateLabel);
+
+		DateTextLabel = new JLabel("21/03/2022");
+		DateTextLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		DateTextLabel.setBounds(1147, 63, 93, 36);
+		MealPlanPanel.add(DateTextLabel);
+
+		FinishWeekButton = new JButton("Finish Week");
+		FinishWeekButton.setEnabled(false);
+		FinishWeekButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// Add to date
+				c.add(Calendar.DATE, 7);
+
+				// Get date text
+				String date = dateFormat.format(c.getTime());
+
+				// Set label
+				DateTextLabel.setText(date);
+
+				// Re-enable the generate and save buttons
+				GenerateMealPlanButton.setEnabled(true);
+				SaveMealPlanButton.setEnabled(false);
+				FinishWeekButton.setEnabled(false);
+
+				// Reset JTable
+				MealPlanTableModel.setRowCount(0);
+			}
+		});
+		FinishWeekButton.setFont(new Font("Tahoma", Font.BOLD, 17));
+		FinishWeekButton.setBounds(993, 642, 258, 57);
+		MealPlanPanel.add(FinishWeekButton);
 
 //		JTableHeader MealPlanHeader = MealPlanTable.getTableHeader();
 //		MealPlanHeader.setBackground(green);
@@ -1178,21 +1314,33 @@ public class MealManagementInterface extends JFrame {
 						new String[] { "New column", "New column", "New column", "New column" }));
 		RecommendationsSplitPane.setRightComponent(RecipeRecommendationsTable);
 
+		JButton BackButton = new JButton("Back");
+		BackButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
+		BackButton.setBackground(Color.WHITE);
+		BackButton.setBounds(33, 86, 89, 23);
+		RecipeDetailsContentPanel.add(BackButton);
+
 		JPanel SettingsPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		ViewPanel.add(SettingsPanel, "SettingsViewPanel");
 		SettingsPanel.setLayout(null);
 
 		JLabel ChangePasswordLabel = new JLabel("Change Password: ");
+		ChangePasswordLabel.setForeground(Color.WHITE);
 		ChangePasswordLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		ChangePasswordLabel.setBounds(97, 165, 214, 68);
+		ChangePasswordLabel.setBounds(97, 504, 214, 68);
 		SettingsPanel.add(ChangePasswordLabel);
 
 		ChangePasswordTextField = new JRoundedTextField(0);
-		ChangePasswordTextField.setBounds(278, 175, 232, 57);
+		ChangePasswordTextField.setBounds(281, 514, 232, 57);
 		SettingsPanel.add(ChangePasswordTextField);
 		ChangePasswordTextField.setColumns(10);
 
 		JLabel LogoutLabel = new JLabel("Log Out?");
+		LogoutLabel.setForeground(Color.WHITE);
 		LogoutLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1200,7 +1348,7 @@ public class MealManagementInterface extends JFrame {
 			}
 		});
 		LogoutLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		LogoutLabel.setBounds(97, 287, 168, 57);
+		LogoutLabel.setBounds(97, 637, 168, 57);
 		Font font = LogoutLabel.getFont();
 		Map attributes = font.getAttributes();
 		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
@@ -1224,7 +1372,7 @@ public class MealManagementInterface extends JFrame {
 				}
 			}
 		});
-		ChangeButton.setBounds(520, 175, 157, 58);
+		ChangeButton.setBounds(540, 514, 157, 58);
 		SettingsPanel.add(ChangeButton);
 
 		JLabel SettingsLabel = new JLabel("MY SETTINGS");
@@ -1232,6 +1380,113 @@ public class MealManagementInterface extends JFrame {
 		SettingsLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		SettingsLabel.setBounds(442, 11, 345, 77);
 		SettingsPanel.add(SettingsLabel);
+
+		JLabel HelpLabel = new JLabel("Need Help? -  email us - mealplan@management.co.uk");
+		HelpLabel.setForeground(Color.WHITE);
+		HelpLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		HelpLabel.setBounds(97, 568, 599, 68);
+		SettingsPanel.add(HelpLabel);
+
+		JLabel TestLabel = new JLabel("Test");
+		TestLabel.setBounds(97, 435, 221, 42);
+		SettingsPanel.add(TestLabel);
+
+		JLabel MyPreferencesLabel = new JLabel("My Preferences:");
+		MyPreferencesLabel.setForeground(Color.WHITE);
+		MyPreferencesLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		MyPreferencesLabel.setBounds(97, 74, 157, 48);
+		SettingsPanel.add(MyPreferencesLabel);
+
+		JLabel CalorieIntakeLabel = new JLabel("Calorie Intake:");
+		CalorieIntakeLabel.setForeground(Color.WHITE);
+		CalorieIntakeLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		CalorieIntakeLabel.setBounds(97, 133, 157, 48);
+		SettingsPanel.add(CalorieIntakeLabel);
+
+		JLabel DietLabel = new JLabel("Diet:");
+		DietLabel.setForeground(Color.WHITE);
+		DietLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		DietLabel.setBounds(97, 199, 157, 48);
+		SettingsPanel.add(DietLabel);
+
+		JLabel DifficultyLabel = new JLabel("Difficulty:");
+		DifficultyLabel.setForeground(Color.WHITE);
+		DifficultyLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		DifficultyLabel.setBounds(97, 264, 157, 48);
+		SettingsPanel.add(DifficultyLabel);
+
+		JRadioButton EasyRadioButton = new JRadioButton("  Easy");
+		EasyRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		EasyRadioButton.setForeground(Color.BLACK);
+		EasyRadioButton.setBounds(208, 277, 125, 31);
+		SettingsPanel.add(EasyRadioButton);
+
+		JRadioButton MediumRadioButton = new JRadioButton("  Medium");
+		MediumRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		MediumRadioButton.setBounds(372, 277, 125, 31);
+		SettingsPanel.add(MediumRadioButton);
+
+		JRadioButton DifficultRadioButton = new JRadioButton("  Difficult");
+		DifficultRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		DifficultRadioButton.setBounds(538, 277, 125, 31);
+		SettingsPanel.add(DifficultRadioButton);
+
+		ButtonGroup difficultyGroup = new ButtonGroup();
+		difficultyGroup.add(EasyRadioButton);
+		difficultyGroup.add(MediumRadioButton);
+		difficultyGroup.add(DifficultRadioButton);
+
+		JRadioButton VegRadioButton = new JRadioButton("  Veg");
+		VegRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		VegRadioButton.setBounds(97, 367, 109, 42);
+		SettingsPanel.add(VegRadioButton);
+
+		JRadioButton VeganRadioButton = new JRadioButton("  Vegan");
+		VeganRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		VeganRadioButton.setBounds(281, 367, 109, 42);
+		SettingsPanel.add(VeganRadioButton);
+
+		JRadioButton NoPreferencesRadioButton = new JRadioButton("  No Preferences");
+		NoPreferencesRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		NoPreferencesRadioButton.setBounds(466, 367, 168, 42);
+		SettingsPanel.add(NoPreferencesRadioButton);
+
+		ButtonGroup dietGroup = new ButtonGroup();
+		dietGroup.add(VegRadioButton);
+		dietGroup.add(VeganRadioButton);
+		dietGroup.add(NoPreferencesRadioButton);
+
+		// VegRadioButton.addActionListener((ActionListener) this);
+		// VeganRadioButton.addActionListener((ActionListener) this);
+		// NoPreferencesRadioButton.addActionListener((ActionListener) this);
+
+//		if (VegRadioButton.isSelected()) {
+//			TestLabel.setText("Yo I am vegetarian");
+//		}
+//
+//		if (VeganRadioButton.isSelected()) {
+//			TestLabel.setText("Yo I am vegan");
+//		}
+//
+//		if (NoPreferencesRadioButton.isSelected()) {
+//			TestLabel.setText("Yo I do not have preferences");
+//		}
+
+		DietTextField = new JTextField();
+		DietTextField.setBounds(245, 206, 182, 42);
+		SettingsPanel.add(DietTextField);
+		DietTextField.setColumns(10);
+
+		CalorieIntakeTextField = new JTextField();
+		CalorieIntakeTextField.setColumns(10);
+		CalorieIntakeTextField.setBounds(245, 139, 182, 42);
+		SettingsPanel.add(CalorieIntakeTextField);
+
+		JLabel KCalLabel = new JLabel("kcal");
+		KCalLabel.setForeground(Color.WHITE);
+		KCalLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		KCalLabel.setBounds(442, 137, 76, 44);
+		SettingsPanel.add(KCalLabel);
 
 		// login function
 		// get connection to the database
