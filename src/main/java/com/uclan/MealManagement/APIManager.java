@@ -25,7 +25,12 @@ public class APIManager {
 		return str;
 	}
 
-	public static void getAPI(String textField, JLabel label) throws Exception {
+	public static ArrayList<Recipe> getRecipesFromAPI(String searchTerm, JLabel label) throws Exception { // Need to
+																											// have
+																											// more
+		// parameters here.
+		// Make arraylist for return // Textfield + diet tags
+		ArrayList<Recipe> recipeList = new ArrayList<Recipe>();
 
 		// Make generalised ingredient list
 		ArrayList<String> generalIngredients = new ArrayList<String>();
@@ -68,7 +73,7 @@ public class APIManager {
 
 		// Get response from API
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("https://tasty.p.rapidapi.com/recipes/list?from=0&size=20&tags=under_30_minutes"))
+				.uri(URI.create("https://tasty.p.rapidapi.com/recipes/list?from=0&size=20&q=" + searchTerm))
 				.header("x-rapidapi-host", "tasty.p.rapidapi.com")
 				.header("x-rapidapi-key", "1fe57c4133msh7efab93e804ef92p1e2bb3jsneafe38f2b6dd")
 				.method("GET", HttpRequest.BodyPublishers.noBody()).build();
@@ -88,7 +93,6 @@ public class APIManager {
 			for (int i = 0; i < recipeArray.length(); i++) {
 				// Get recipe JSON
 				JSONObject recipeJson = recipeArray.getJSONObject(i);
-				JSONObject recipeNutrition = recipeJson.getJSONObject("nutrition");
 
 				// Declare details
 				String recipeName = "";
@@ -98,16 +102,25 @@ public class APIManager {
 				String recipeCalories = "0";
 				String recipeDifficulty = "";
 				String recipeServings = "0";
+				String recipeCuisine = "";
+				String mealTime = "";
+
+				// Get recipe nutrition
+				if (!recipeJson.isNull("nutrition")) {
+					JSONObject recipeNutrition = recipeJson.getJSONObject("nutrition");
+					if (!recipeNutrition.isNull("calories")) {
+						recipeCalories = String.valueOf(recipeNutrition.getInt("calories"));
+					}
+				}
 
 				// Get details
 				recipeName = recipeJson.getString("name");
-				recipeDescription = recipeJson.getString("description");
+				recipeDietCategory = "none";
+				if (!recipeJson.isNull("description")) {
+					recipeDescription = recipeJson.getString("description");
+				}
 				if (!recipeJson.isNull("total_time_minutes")) {
 					recipeTime = String.valueOf(recipeJson.getInt("total_time_minutes"));
-				}
-				recipeDietCategory = "none";
-				if (!recipeNutrition.isNull("calories")) {
-					recipeCalories = String.valueOf(recipeNutrition.getInt("calories"));
 				}
 				recipeDifficulty = "";
 				if (!recipeJson.isNull("num_servings")) {
@@ -116,70 +129,79 @@ public class APIManager {
 
 				// Get instructions
 				String recipeInstructions = "";
-				JSONArray recipeInstructionsJSON = recipeJson.getJSONArray("instructions");
-				for (int j = 0; j < recipeInstructionsJSON.length(); j++) {
-					recipeInstructions += recipeInstructionsJSON.getJSONObject(j).getString("display_text") + "\n";
+				if (!recipeJson.isNull("instructions")) {
+					JSONArray recipeInstructionsJSON = recipeJson.getJSONArray("instructions");
+					for (int j = 0; j < recipeInstructionsJSON.length(); j++) {
+						recipeInstructions += recipeInstructionsJSON.getJSONObject(j).getString("display_text") + "\n";
+					}
 				}
 
 				// Format description
 				recipeDescription = removeNonAlphanumeric(recipeDescription);
 				recipeInstructions = removeNonAlphanumeric(recipeInstructions);
 
-				// Get tags
-				JSONArray sections = recipeJson.getJSONArray("sections");
-				JSONObject section = sections.getJSONObject(0);
-				JSONArray components = section.getJSONArray("components");
-				JSONArray tags = recipeJson.getJSONArray("tags");
+				// Sections - for tags and ingredients
+				if (!recipeJson.isNull("sections")) {
+					// Get tags
+					JSONArray sections = recipeJson.getJSONArray("sections");
+					JSONObject section = sections.getJSONObject(0);
+					JSONArray components = section.getJSONArray("components");
+					JSONArray tags = recipeJson.getJSONArray("tags");
 
-				// Iterate through tags
-				String mealTime = "";
-				for (int j = 0; j < tags.length(); j++) {
-					JSONObject tag = tags.getJSONObject(j);
-					String tagType = tag.getString("type");
-					String tagName = tag.getString("name");
+					// Iterate through tags
+					for (int j = 0; j < tags.length(); j++) {
+						JSONObject tag = tags.getJSONObject(j);
+						String tagType = tag.getString("type");
+						String tagName = tag.getString("name");
 
-					// What mealtime? (lunch/breakfast/etc.)
-					if (tagType.equals("meal")) {
-						mealTime = tagName;
+						// What mealtime? (lunch/breakfast/etc.)
+						if (tagType.equals("meal")) {
+							mealTime = tagName;
+						}
+
+						// Difficulty
+						if (tagType.equals("difficulty")) {
+							recipeDifficulty = tagName;
+						}
+
+						// Difficulty
+						if (tagType.equals("cuisine")) {
+							recipeCuisine = tagName;
+						}
 					}
 
-					// Difficulty
-					if (tagType.equals("difficulty")) {
-						recipeDifficulty = tagName;
+					// Look at each ingredient/component
+					for (int j = 0; j < components.length(); j++) {
+						// Get ingredient name
+						JSONObject component = components.getJSONObject(j);
+						JSONObject ingredient = component.getJSONObject("ingredient");
+						String ingredientName = ingredient.getString("name");
+
+						// Make into general ingredient
+						for (int k = 0; k < generalIngredients.size(); k++) {
+							String generalIngredient = generalIngredients.get(k);
+							if (ingredientName.contains(generalIngredient)) {
+								ingredientName = generalIngredient;
+							}
+						}
+
+						// Add ingredient to SQL database
+						SQLManager.AddIngredientsFromList(ingredientName, SQLManager.RecipeID());
 					}
 				}
 
 				// Add recipe to SQL database
 				SQLManager.AddRecipeQuery(recipeName, mealTime, recipeDescription, recipeTime, recipeDietCategory,
-						recipeCalories, recipeDifficulty, recipeServings, recipeInstructions);
+						recipeCalories, recipeDifficulty, recipeServings, recipeInstructions, recipeCuisine);
 
-				// Look at each ingredient/component
-				for (int j = 0; j < components.length(); j++) {
-					// Get ingredient name
-					JSONObject component = components.getJSONObject(j);
-					JSONObject ingredient = component.getJSONObject("ingredient");
-					String ingredientName = ingredient.getString("name");
-
-					// Make into general ingredient
-					for (int k = 0; k < generalIngredients.size(); k++) {
-						String generalIngredient = generalIngredients.get(k);
-						if (ingredientName.contains(generalIngredient)) {
-							ingredientName = generalIngredient;
-						}
-					}
-
-					// Add ingredient to SQL database
-					SQLManager.AddIngredientsFromList(ingredientName, SQLManager.RecipeID());
-				}
-
+				// Add recipe to arraylist for return
+				Recipe newRecipe = new Recipe();
+				newRecipe.mName = recipeName;
+				newRecipe.mMealTime = mealTime;
+				recipeList.add(newRecipe);
 			}
 		}
 
-//		if (response.statusCode() == 200) {
-//            System.out.println("The API has connected succssfully");
-//        } else {
-//        	throw new RuntimeException("HttpResponseCode: " + response.statusCode());
-//        }
-
+		return recipeList;
 	}
 }

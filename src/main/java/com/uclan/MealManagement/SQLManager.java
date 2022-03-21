@@ -223,18 +223,64 @@ public class SQLManager {
 		}
 	}
 
+	public static ResultSet RecipeQuery(int maxCalories, int maxCookTime, String difficulty) throws Exception {
+		String query = "";
+		try {
+			Connection getConnection = getConnection();
+			query = "SELECT idrecipe, recipeName, mealTime, recipeTime, recipeCalories, recipeDifficulty FROM store_db.recipe "
+					+ "WHERE recipeCalories < '" + maxCalories + "' AND recipeDifficulty = '" + difficulty
+					+ "' AND recipeTime < '" + maxCookTime + "';";
+//			query = "SELECT * FROM store.recipe;";
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = st.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static ArrayList<String> RecipeQueryCuisine(int maxCalories, int maxCookTime, String difficulty,
+			String cuisine) throws Exception {
+		String query = "";
+		try {
+
+			// Make recipe list
+			ArrayList<String> recipeList = new ArrayList<String>();
+
+			Connection getConnection = getConnection();
+			query = "SELECT idrecipe, recipeName, mealTime, recipeTime, recipeCalories, recipeDifficulty FROM store_db.recipe "
+					+ "WHERE recipeCuisine = '" + cuisine + "';";
+//			query = "SELECT * FROM store.recipe;";
+			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = st.executeQuery(query);
+
+			// Turn result set into arraylist
+			while (rs.next()) {
+				recipeList.add(rs.getString(2));
+			}
+
+			return recipeList;
+		} catch (SQLException e) {
+			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static void AddRecipeQuery(String recipeName, String mealTime, String recipeDescription, String recipeTime,
 			String recipeDietCategory, String recipeCalories, String recipeDifficulty, String recipeServings,
-			String recipeInstructions) throws Exception {
+			String recipeInstructions, String recipeCuisine) throws Exception {
 		String query = "";
 		try {
 			// Connection
 			Connection getConnection = getConnection();
 
-			query = "INSERT INTO store_db.recipe (recipeName, mealTime, recipeDescription, recipeTime, dietCategory, recipeCalories, recipeDifficulty, recipeServings, recipeInstructions) VALUES ('"
+			query = "INSERT INTO store_db.recipe (recipeName, mealTime, recipeDescription, recipeTime, dietCategory, recipeCalories, recipeDifficulty, recipeServings, recipeInstructions, recipeCuisine) VALUES ('"
 					+ recipeName + "', '" + mealTime + "', '" + recipeDescription + "', '" + recipeTime + "', '"
 					+ recipeDietCategory + "', '" + recipeCalories + "', '" + recipeDifficulty + "', '" + recipeServings
-					+ "', '" + recipeInstructions + "');";
+					+ "', '" + recipeInstructions + "', '" + recipeCuisine + "')";
 //			query = "INSERT INTO store.recipe (recipeName, mealTime) VALUES ('" + RecipeName + "', '" + mealTime + "');";
 
 			// it allows to reset the result set
@@ -283,9 +329,9 @@ public class SQLManager {
 		}
 	}
 
-	public static ArrayList<String> getIngredientsOfRecipe(String recipeId) throws Exception {
+	public static ArrayList<Ingredient> getIngredientsOfRecipe(String recipeId) throws Exception {
 		String query = "";
-		ArrayList<String> IngredientList = new ArrayList<String>();
+		ArrayList<Ingredient> IngredientList = new ArrayList<Ingredient>();
 		try {
 			// Connection
 			Connection getConnection = getConnection();
@@ -299,7 +345,9 @@ public class SQLManager {
 
 			while (rs.next()) {
 				// Map<String, String> Detail = new HashMap<String, String>();
-				IngredientList.add(rs.getString(1));
+				Ingredient ingredient = new Ingredient();
+				ingredient.name = rs.getString(1);
+				IngredientList.add(ingredient);
 			}
 
 			return IngredientList;
@@ -523,6 +571,44 @@ public class SQLManager {
 
 	}
 
+	public static void PopulateJTableWithRecipeList(JTable table, ArrayList<Recipe> recipeList,
+			ArrayList<String> columnNames) throws SQLException {
+		// Table columns
+		Vector<String> columnNamesVector = new Vector<String>();
+		int columnCount = columnNames.size();
+		for (int column = 0; column < 2; column++) {
+			columnNamesVector.add(columnNames.get(column));
+		}
+
+		// Table data
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		for (int i = 0; i < recipeList.size(); i++) {
+			Vector<Object> vector = new Vector<Object>();
+			vector.add(recipeList.get(i).mName);
+			vector.add(recipeList.get(i).mMealTime);
+			data.add(vector);
+		}
+
+		// Create model
+		DefaultTableModel model = new DefaultTableModel(data, columnNamesVector);
+
+		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
+		Color lightPink = Color.decode("#f4d8e4");
+		// Set table model
+		table.setModel(model);
+		JTableHeader Header = table.getTableHeader();
+		Header.setBackground(lightPink);
+		Header.setForeground(black);
+		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+
+		// Resize table
+		// resizeTable(table);
+
+		// Set resize mode
+		// table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+	}
+
 	public static ArrayList<HashMap<String, String>> findSimilarUsers(String customerId)
 			throws Exception, SQLException {
 		// give arraylist of string with each of their ids
@@ -563,6 +649,25 @@ public class SQLManager {
 		suggestedRecipesLabel.setText(SuggestedRecipeString);
 	}
 
+	public static String GetMostPopularCuisine(String customerID) throws Exception {
+
+		// Set query
+		String query = "SELECT p.customerId, p.idFavourites, a.recipeCuisine, COUNT(a.recipeCuisine) AS cusine_count FROM store_db.favourites p LEFT JOIN store_db.recipe a ON p.recipeId = a.idrecipe WHERE p.customerID = "
+				+ customerID + "\r\n" + "				GROUP BY a.recipeCuisine \r\n"
+				+ "				ORDER BY cusine_count DESC;";
+
+		// Get connection
+		Connection getConnection = getConnection();
+
+		// Execute query
+		Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs = st.executeQuery(query);
+		rs.next();
+
+		// Return
+		return rs.getString(3);
+	}
+
 	public static void populateSuggestedRecipesInTable(String customerId, JTable suggestedRecipesTable)
 			throws Exception {
 		// Find similar users
@@ -571,6 +676,37 @@ public class SQLManager {
 
 		// Get suggested recipes
 		ArrayList<String> SuggestedRecipes = getFavouriteRecipes(similarUserId);
+
+		// Get most popular cuisine
+		String mostPopularCuisine = GetMostPopularCuisine(customerId);
+
+		// Get recipes with most popular cuisine
+		ArrayList<String> suggestedRecipesByCuisine = RecipeQueryCuisine(UserPreferenceManager.maxCalories,
+				UserPreferenceManager.maxCookTime, UserPreferenceManager.difficulty, mostPopularCuisine);
+
+		// Add cuisine suggestions (item based) onto CF/user suggested recipes
+		for (int i = 0; i < suggestedRecipesByCuisine.size(); i++) {
+			SuggestedRecipes.add(suggestedRecipesByCuisine.get(i));
+		}
+
+		// Filter out existing favourites
+		ArrayList<String> existingFavourites = getFavouriteRecipes(customerId);
+		for (int i = 0; i < existingFavourites.size(); i++) {
+			// Get suggested
+			String existingFavourite = existingFavourites.get(i);
+			// Look for existing
+			for (int j = 0; j < SuggestedRecipes.size(); j++) {
+				// Get existing
+				String suggestedFavourite = SuggestedRecipes.get(j);
+
+				// Compare
+				if (existingFavourite.equals(suggestedFavourite)) {
+					// Remove
+					SuggestedRecipes.remove(j);
+					j--;
+				}
+			}
+		}
 
 		// Initialise table model
 		DefaultTableModel suggestedRecipesTableModel = new DefaultTableModel();

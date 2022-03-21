@@ -1,10 +1,16 @@
 package com.uclan.MealManagement;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+
+class Ingredient {
+	public String name;
+	public Calendar expiryDate = Calendar.getInstance();
+}
 
 public class Recipe {
 // list of strings array
-	ArrayList<String> IngredientList = new ArrayList<String>();
+	ArrayList<Ingredient> IngredientList = new ArrayList<Ingredient>();
 
 	String mName;
 	String mMealTime;

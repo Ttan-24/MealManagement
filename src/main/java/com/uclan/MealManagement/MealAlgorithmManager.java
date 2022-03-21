@@ -1,21 +1,23 @@
 package com.uclan.MealManagement;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MealAlgorithmManager {
 	// Params
 	public static int mealPlanDays = 7;
 
 	// Data
-	public static ArrayList<String> fridgeIngredients = new ArrayList<String>();
+	public static MealPlan mealPlan;
+	public static ArrayList<Ingredient> fridgeIngredients = new ArrayList<Ingredient>();
 	public static ArrayList<Recipe> allRecipes = new ArrayList<Recipe>();
 	public static ArrayList<Recipe> possibleRecipes = new ArrayList<Recipe>();
 	public static ArrayList<Recipe> mealList = new ArrayList<Recipe>();
 
 	// Main event
-	public static ArrayList<Recipe> CalculateMealPlan(String UserId, ArrayList<String> BreakfastList,
-			ArrayList<String> LunchList, ArrayList<String> DinnerList) throws Exception {
+	public static MealPlan CalculateMealPlan(String UserId) throws Exception {
 
 		// Initialise data
 		InitialiseRecipeList();
@@ -26,47 +28,36 @@ public class MealAlgorithmManager {
 		UpdatePossibleRecipes(UserId);
 		System.out.println("I can make " + possibleRecipes.size() + " different recipes");
 
-		// Get list of recipes for different meal times
-		ArrayList<Recipe> breakfastRecipeList = makeMealTimeList("breakfast", UserId);
-		ArrayList<Recipe> lunchRecipeList = makeMealTimeList("lunch", UserId);
-		ArrayList<Recipe> dinnerRecipeList = makeMealTimeList("dinner", UserId);
+		// Iterate through meal plan making meals
+		mealPlan = new MealPlan(Calendar.getInstance());
+		for (int i = 0; i < 7; i++) {
+			// Day
+			MealPlanDay day = mealPlan.days.get(i);
 
-		// Declare errors
-		if (breakfastRecipeList == null) {
-			System.out.print("Could not make enough breakfast meals");
-		}
-		if (lunchRecipeList == null) {
-			System.out.print("Could not make enough lunch meals");
-		}
-		if (dinnerRecipeList == null) {
-			System.out.print("Could not make enough dinner meals");
-		}
+			// Eliminate out of date ingredients
+			UpdateFridge(day.date);
 
-		// Update string lists for JTable population
-		for (int i = 0; i < breakfastRecipeList.size(); i++) {
-			BreakfastList.add(breakfastRecipeList.get(i).mName);
-			mealList.add(breakfastRecipeList.get(i));
-		}
-		for (int i = 0; i < lunchRecipeList.size(); i++) {
-			LunchList.add(lunchRecipeList.get(i).mName);
-			mealList.add(lunchRecipeList.get(i));
-		}
-		for (int i = 0; i < dinnerRecipeList.size(); i++) {
-			DinnerList.add(dinnerRecipeList.get(i).mName);
-			mealList.add(dinnerRecipeList.get(i));
+			// Update possible recipes
+			UpdatePossibleRecipes(UserId);
+
+			// Add meals
+			day.breakfastRecipe = getRecipeAtMealTime("breakfast");
+			day.lunchRecipe = getRecipeAtMealTime("lunch");
+			day.dinnerRecipe = getRecipeAtMealTime("dinner");
 		}
 
 		// Return
-		return mealList;
+		return mealPlan;
 	}
 
 	public static void InitialiseRecipeList() throws Exception {
 		allRecipes = new ArrayList<Recipe>();
-		ResultSet rsRecipeQuery = SQLManager.RecipeQuery();
+		ResultSet rsRecipeQuery = SQLManager.RecipeQuery(UserPreferenceManager.maxCalories,
+				UserPreferenceManager.maxCookTime, UserPreferenceManager.difficulty);
 		while (rsRecipeQuery.next()) {
 			String recipeName = rsRecipeQuery.getString(2);
 			String mealTime = rsRecipeQuery.getString(3);
-			ArrayList<String> Ingredients = SQLManager.getIngredientsOfRecipe(rsRecipeQuery.getString(1));
+			ArrayList<Ingredient> Ingredients = SQLManager.getIngredientsOfRecipe(rsRecipeQuery.getString(1));
 			Recipe recipe = new Recipe();
 			recipe.IngredientList = Ingredients;
 			recipe.mName = recipeName;
@@ -76,19 +67,40 @@ public class MealAlgorithmManager {
 	}
 
 	public static void InitialiseFridge(String UserId) throws Exception {
-		fridgeIngredients = new ArrayList<String>();
+		fridgeIngredients = new ArrayList<Ingredient>();
 		ResultSet rsFridgeQuery = SQLManager.FridgeQuery(UserId);
 		while (rsFridgeQuery.next()) {
-			String itemName = rsFridgeQuery.getString(1);
+			// Get ingredient
+			Ingredient ingredient = new Ingredient();
+			ingredient.name = rsFridgeQuery.getString(1);
+			Date date = rsFridgeQuery.getDate(2);
+			ingredient.expiryDate.setTime(date);
+
+			// Add ingredient by quantity to fridge
 			int quantity = Integer.parseInt(rsFridgeQuery.getString(3));
 			for (int i = 0; i < quantity; i++) {
-				fridgeIngredients.add(itemName);
+				fridgeIngredients.add(ingredient);
+			}
+		}
+	}
+
+	// Update all ingredients
+	public static void UpdateFridge(Calendar date) {
+		// Update all ingredients
+		for (int i = 0; i < fridgeIngredients.size(); i++) {
+			// Get ingredient
+			Ingredient fridgeIngredient = fridgeIngredients.get(i);
+
+			// Update ingredient
+			if (fridgeIngredient.expiryDate.before(date)) {
+				fridgeIngredients.remove(i);
+				i--;
 			}
 		}
 	}
 
 	// This function gives 7 recipes, all for one time (eg lunch, breakfast, dinner)
-	public static ArrayList<Recipe> makeMealTimeList(String mealTime, String UserId) throws Exception {
+	public static ArrayList<Recipe> makePossibleRecipeListForMealTime(String mealTime, String UserId) throws Exception {
 		// Make list
 		ArrayList<Recipe> recipeList = new ArrayList<Recipe>();
 
@@ -130,15 +142,15 @@ public class MealAlgorithmManager {
 		// Remove ingredients from fridge
 		for (int i = 0; i < recipe.IngredientList.size(); i++) {
 			// Ingredient name
-			String ingredient = recipe.IngredientList.get(i);
+			Ingredient ingredient = recipe.IngredientList.get(i);
 
 			// Find in fridge
 			for (int j = 0; j < fridgeIngredients.size(); j++) {
 				// Fridge ingredient
-				String fridgeIngredient = fridgeIngredients.get(j);
+				Ingredient fridgeIngredient = fridgeIngredients.get(j);
 
 				// Remove and finish iteration if found
-				if (ingredient.equals(fridgeIngredient)) {
+				if (ingredient.name.equals(fridgeIngredient.name)) {
 					System.out.println("Removing " + fridgeIngredient);
 					fridgeIngredients.remove(j);
 					break;
@@ -162,7 +174,7 @@ public class MealAlgorithmManager {
 			// Look through each required ingredient
 			for (int j = 0; j < recipe.IngredientList.size(); j++) {
 				// Required ingredient
-				String requiredIngredient = recipe.IngredientList.get(j);
+				Ingredient requiredIngredient = recipe.IngredientList.get(j);
 
 				// Bool for if ingredient is found
 				boolean ingredientFound = false;
@@ -170,10 +182,10 @@ public class MealAlgorithmManager {
 				// Look for ingredient in fridge
 				for (int k = 0; k < fridgeIngredients.size(); k++) {
 					// Get fridge ingredient
-					String fridgeIngredient = fridgeIngredients.get(k);
+					Ingredient fridgeIngredient = fridgeIngredients.get(k);
 
 					// Find if ingredient is missing
-					if (fridgeIngredient.equals(requiredIngredient)) {
+					if (fridgeIngredient.name.equals(requiredIngredient.name)) {
 						ingredientFound = true;
 					}
 				}
