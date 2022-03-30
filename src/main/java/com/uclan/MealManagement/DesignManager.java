@@ -1,6 +1,7 @@
 package com.uclan.MealManagement;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -9,16 +10,167 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 public class DesignManager {
+	public static void populateTableWithResultSet(JTable table, ResultSet rs, ArrayList<String> columnName)
+			throws SQLException {
+
+		// Resultset metadata
+		ResultSetMetaData metaData = rs.getMetaData();
+
+		// Table columns
+		Vector<String> columnNames = new Vector<String>();
+		int columnCount = metaData.getColumnCount();
+		for (int column = 1; column <= columnCount; column++) {
+			columnNames.add(columnName.get(column));
+		}
+
+		// Table data
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) {
+			Vector<Object> vector = new Vector<Object>();
+			for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+				vector.add(rs.getObject(columnIndex));
+			}
+			data.add(vector);
+		}
+
+		rs.beforeFirst(); // the populatetablewithresultset it will end up puting the cursor at the end so
+		// we need before first to reset the cursor in the beginning
+
+		// Create model
+		DefaultTableModel model = new DefaultTableModel(data, columnNames);
+
+		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
+		Color lightPink = Color.decode("#f4d8e4");
+		// Set table model
+		table.setModel(model);
+		JTableHeader Header = table.getTableHeader();
+		Header.setBackground(lightPink);
+		Header.setForeground(black);
+		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+	}
+
+	public static void populateTableWithResultSetWithCheckBox(JTable table, ResultSet rs, String customerId)
+			throws Exception {
+
+		// Resultset metadata
+		ResultSetMetaData metaData = rs.getMetaData();
+
+		ArrayList<String> columnName = new ArrayList<String>();
+		columnName.add("");
+		columnName.add("Sr no.");
+		columnName.add("Recipe Name");
+		columnName.add("Meal Time");
+		columnName.add("Favourite");
+
+		// Table columns
+		Vector<String> columnNames = new Vector<String>();
+		int columnCount = metaData.getColumnCount();
+		for (int column = 1; column <= columnCount; column++) {
+			columnNames.add(columnName.get(column));
+		}
+
+		// Table data
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) {
+			Vector<Object> vector = new Vector<Object>();
+			for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+				vector.add(rs.getObject(columnIndex));
+			}
+			data.add(vector);
+		}
+
+		rs.beforeFirst(); // the populatetablewithresultset it will end up puting the cursor at the end so
+		// we need before first to reset the cursor in the beginning
+
+		// Create model
+		DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+			@Override
+			public Class getColumnClass(int columnIndex) {
+				if (columnIndex == 3) {
+					return Boolean.class;
+				} else {
+					return Object.class;
+				}
+			}
+		};
+
+		ArrayList<String> favouriteList = SQLManager.getFavouriteRecipes(customerId);
+		Vector<Boolean> toggleList = new Vector<Boolean>();
+		for (int i = 0; i < model.getRowCount(); i++) {
+			Object getValue = model.getValueAt(i, 1);
+			if (favouriteList.contains(getValue)) {
+				toggleList.add(true);
+			} else {
+				toggleList.add(false);
+			}
+		}
+		model.addColumn("Favourite", toggleList);
+		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
+		Color lightPink = Color.decode("#f4d8e4");
+		// Set table model
+		table.setModel(model);
+		JTableHeader Header = table.getTableHeader();
+		Header.setBackground(lightPink);
+		Header.setForeground(black);
+		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+	}
+
+	public static void PopulateJTableWithRecipeList(JTable table, ArrayList<Recipe> recipeList,
+			ArrayList<String> columnNames) throws SQLException {
+		// Table columns
+		Vector<String> columnNamesVector = new Vector<String>();
+		int columnCount = columnNames.size();
+		for (int column = 0; column < 2; column++) {
+			columnNamesVector.add(columnNames.get(column));
+		}
+
+		// Table data
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		for (int i = 0; i < recipeList.size(); i++) {
+			Vector<Object> vector = new Vector<Object>();
+			vector.add(recipeList.get(i).mName);
+			vector.add(recipeList.get(i).mMealTime);
+			data.add(vector);
+		}
+
+		// Create model
+		DefaultTableModel model = new DefaultTableModel(data, columnNamesVector);
+
+		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
+		Color lightPink = Color.decode("#f4d8e4");
+		// Set table model
+		table.setModel(model);
+		JTableHeader Header = table.getTableHeader();
+		Header.setBackground(lightPink);
+		Header.setForeground(black);
+		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+
+	}
+
+	public static void deleteAllRows(final DefaultTableModel model) {
+		for (int i = model.getRowCount() - 1; i >= 0; i--) {
+			model.removeRow(i);
+		}
+	}
+
 }
 
 // a custom text field with rounded corners
@@ -31,14 +183,14 @@ class JRoundedTextField extends JTextField {
 
 	}
 
-	protected void paintComponent(Graphics g) {
-		g.setColor(getBackground());
-		g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
-		super.paintComponent(g);
+	protected void paintComponent(Graphics graphics) {
+		graphics.setColor(getBackground());
+		graphics.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
+		super.paintComponent(graphics);
 	}
 
-	protected void paintBorder(Graphics g) {
-		g.setColor(getForeground());
+	protected void paintBorder(Graphics graphics) {
+		graphics.setColor(getForeground());
 	}
 
 	public boolean contains(int x, int y) {
@@ -59,14 +211,14 @@ class JRoundedPasswordField extends JPasswordField {
 
 	}
 
-	protected void paintComponent(Graphics g) {
-		g.setColor(getBackground());
-		g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
-		super.paintComponent(g);
+	protected void paintComponent(Graphics graphics) {
+		graphics.setColor(getBackground());
+		graphics.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
+		super.paintComponent(graphics);
 	}
 
-	protected void paintBorder(Graphics g) {
-		g.setColor(getForeground());
+	protected void paintBorder(Graphics graphics) {
+		graphics.setColor(getForeground());
 	}
 
 	public boolean contains(int x, int y) {
@@ -87,32 +239,32 @@ class JRoundedPasswordField extends JPasswordField {
 class JRoundedButton extends JButton {
 	private static final long serialVersionUID = -7717051774668626390L;
 
-	public JRoundedButton(String text) {
-		super(text);
+	public JRoundedButton(String stringText) {
+		super(stringText);
 		setContentAreaFilled(false);
 		setRolloverEnabled(true);
 		setFocusable(false);
 	}
 
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(Graphics graphics) {
 		if (getModel().isArmed()) {
-			g.setColor(Color.decode("#eeeeee").darker());
+			graphics.setColor(Color.decode("#eeeeee").darker());
 		} else {
-			g.setColor(Color.decode("#eeeeee"));
+			graphics.setColor(Color.decode("#eeeeee"));
 		}
 		// fills colour in the button
-		g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
-		super.paintComponent(g);
+		graphics.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
+		super.paintComponent(graphics);
 	}
 
-	protected void paintBorder(Graphics g) {
+	protected void paintBorder(Graphics graphics) {
 		if (getModel().isRollover()) {
-			g.setColor(Color.red);
+			graphics.setColor(Color.red);
 		} else {
-			g.setColor(Color.decode("#595959").brighter());
+			graphics.setColor(Color.decode("#595959").brighter());
 		}
 		// draws a border for the rounded button
-		g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
+		graphics.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
 	}
 
 	Shape shape;
@@ -131,27 +283,27 @@ class JRoundedButton extends JButton {
 
 class JGradientButton extends JButton {
 	private static final long serialVersionUID = 1L;
-	private Color stopTop;
-	private Color stopBottom;
+	private Color colorTop;
+	private Color colorBottom;
 	private Paint colorGradient;
-	private Point[] stopPoints = new Point[2];
+	private Point[] points = new Point[2];
 
-	public JGradientButton(Color stopTop, Color stopBottom) {
-		this("", stopTop, stopBottom);
+	public JGradientButton(Color colorTop, Color colorBottom) {
+		this("", colorTop, colorBottom);
 	}
 
-	public JGradientButton(String text, Color stopTop, Color stopBottom) {
-		this(text, null, stopTop, stopBottom);
+	public JGradientButton(String stringText, Color colorTop, Color colorBottom) {
+		this(stringText, null, colorTop, colorBottom);
 	}
 
-	public JGradientButton(String text, Icon icon, Color stopTop, Color stopBottom) {
-		super(text, icon);
+	public JGradientButton(String stringText, Icon icon, Color colorTop, Color colorBottom) {
+		super(stringText, icon);
 
 		setContentAreaFilled(false);
 		setFocusPainted(false);
 
-		this.stopTop = stopTop;
-		this.stopBottom = stopBottom;
+		this.colorTop = colorTop;
+		this.colorBottom = colorBottom;
 
 		addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -160,34 +312,28 @@ class JGradientButton extends JButton {
 		});
 	}
 
-	// public GradientButton(String text, Shape shape, Color stopTop, Color
-	// stopBottom) {
-
-	// }
-
 	public void invalidate() {
 		super.invalidate();
 
-		stopPoints[0] = new Point(0, 0);
-		stopPoints[1] = new Point(0, getHeight());
+		points[0] = new Point(0, 0);
+		points[1] = new Point(0, getHeight());
 
 		if (getModel().isPressed()) {
-			colorGradient = new GradientPaint(stopPoints[0], stopBottom, stopPoints[1], stopTop);
+			colorGradient = new GradientPaint(points[0], colorBottom, points[1], colorTop);
 		} else {
-			colorGradient = new GradientPaint(stopPoints[0], stopTop, stopPoints[1], stopBottom);
+			colorGradient = new GradientPaint(points[0], colorTop, points[1], colorBottom);
 		}
 	}
 
 	@Override
-	protected void paintComponent(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g.create();
+	protected void paintComponent(Graphics graphics) {
+		Graphics2D graphics2D = (Graphics2D) graphics.create();
 
-		g2.setPaint(colorGradient);
-		// g2.fillRoundRect(0,0,getWidth()-1,getHeight()-1,50,50);
-		g2.fillRect(0, 0, getWidth(), getHeight());
-		g2.dispose();
+		graphics2D.setPaint(colorGradient);
+		graphics2D.fillRect(0, 0, getWidth(), getHeight());
+		graphics2D.dispose();
 
-		super.paintComponent(g);
+		super.paintComponent(graphics);
 	}
 }
 
@@ -197,31 +343,31 @@ class JGradientButton extends JButton {
 
 class JRoundedGradientButton extends JButton {
 	private static final long serialVersionUID = 1L;
-	private Color stopTop;
-	private Color stopBottom;
+	private Color colorTop;
+	private Color colorBottom;
 	private Paint colorGradient;
-	private Point[] stopPoints = new Point[2];
+	private Point[] points = new Point[2];
 	private Shape shape;
 
-	public JRoundedGradientButton(Color stopTop, Color stopBottom) {
-		this("", stopTop, stopBottom);
+	public JRoundedGradientButton(Color colorTop, Color colorBottom) {
+		this("", colorTop, colorBottom);
 	}
 
-	public JRoundedGradientButton(String text, Color stopTop, Color stopBottom) {
-		this(text, null, stopTop, stopBottom);
+	public JRoundedGradientButton(String stringText, Color colorTop, Color colorBottom) {
+		this(stringText, null, colorTop, colorBottom);
 		setContentAreaFilled(false);
 		setRolloverEnabled(true);
 		setFocusable(false);
 	}
 
-	public JRoundedGradientButton(String text, Icon icon, Color stopTop, Color stopBottom) {
-		super(text, icon);
+	public JRoundedGradientButton(String stringText, Icon icon, Color colorTop, Color colorBottom) {
+		super(stringText, icon);
 
 		setContentAreaFilled(false);
 		setFocusPainted(false);
 
-		this.stopTop = stopTop;
-		this.stopBottom = stopBottom;
+		this.colorTop = colorTop;
+		this.colorBottom = colorBottom;
 
 		addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -230,45 +376,38 @@ class JRoundedGradientButton extends JButton {
 		});
 	}
 
-	// public GradientButton(String text, Shape shape, Color stopTop, Color
-	// stopBottom) {
-
-	// }
-
 	public void invalidate() {
 		super.invalidate();
 
-		stopPoints[0] = new Point(0, 0);
-		stopPoints[1] = new Point(0, getHeight());
+		points[0] = new Point(0, 0);
+		points[1] = new Point(0, getHeight());
 
 		if (getModel().isPressed()) {
-			colorGradient = new GradientPaint(stopPoints[0], stopBottom, stopPoints[1], stopTop);
+			colorGradient = new GradientPaint(points[0], colorBottom, points[1], colorTop);
 		} else {
-			colorGradient = new GradientPaint(stopPoints[0], stopTop, stopPoints[1], stopBottom);
+			colorGradient = new GradientPaint(points[0], colorTop, points[1], colorBottom);
 		}
 	}
 
 	@Override
-	protected void paintComponent(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g.create();
+	protected void paintComponent(Graphics graphics) {
+		Graphics2D graphics2D = (Graphics2D) graphics.create();
 
-		g2.setPaint(colorGradient);
-		// g2.fillRoundRect(0,0,getWidth()-1,getHeight()-1,50,50);
+		graphics2D.setPaint(colorGradient);
 
-		g2.fillRoundRect(0, 0, getWidth(), getHeight(), 50, 50);
-		g2.dispose();
+		graphics2D.fillRoundRect(0, 0, getWidth(), getHeight(), 50, 50);
+		graphics2D.dispose();
 
-		super.paintComponent(g);
+		super.paintComponent(graphics);
 	}
 
-	protected void paintBorder(Graphics g) {
-		// g.setColor(getForeground());
+	protected void paintBorder(Graphics graphics) {
 		if (getModel().isArmed()) {
-			g.setColor(Color.decode("#eeeeee").darker());
+			graphics.setColor(Color.decode("#eeeeee").darker());
 		} else {
-			g.setColor(Color.decode("#eeeeee"));
+			graphics.setColor(Color.decode("#eeeeee"));
 		}
-		g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
+		graphics.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 50, 50);
 	}
 
 	public boolean contains(int x, int y) {
@@ -285,10 +424,10 @@ class JRoundedGradientButton extends JButton {
 
 class JGradientPanel extends JPanel {
 
-	public int VERTICAL = 0;
-	public int HORIZONTAL = 1;
-	public int DIAGONAL_DOWN = 2;
-	public int DIAGONAL_UP = 3;
+	public int vertical = 0;
+	public int horizontal = 1;
+	public int diagonalDown = 2;
+	public int diagonalUp = 3;
 
 	private Color color1, color2, color3;
 	private int direction;
@@ -330,18 +469,22 @@ class JGradientPanel extends JPanel {
 
 		GradientPaint gradientPaint;
 
-		if (direction == HORIZONTAL)
-			gradientPaint = new GradientPaint(0, getHeight() / 2, color1, getWidth(), getHeight() / 2, color2);
-
-		else if (direction == DIAGONAL_DOWN)
-			gradientPaint = new GradientPaint(0, getHeight(), color1, getWidth(), 0, color2);
-
-		else if (direction == DIAGONAL_UP)
-			gradientPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
-
-		else
-			gradientPaint = new GradientPaint(0, 0, color1, 0, getHeight(), color2);
-
+		if (direction == horizontal) {
+			float height = getHeight() / 2;
+			float width = getWidth();
+			gradientPaint = new GradientPaint(0, height, color1, width, height, color2);
+		} else if (direction == diagonalDown) {
+			float height = getHeight();
+			float width = getWidth();
+			gradientPaint = new GradientPaint(0, height, color1, width, 0, color2);
+		} else if (direction == diagonalUp) {
+			float height = getHeight();
+			float width = getWidth();
+			gradientPaint = new GradientPaint(0, 0, color1, width, height, color2);
+		} else {
+			float height = getHeight();
+			gradientPaint = new GradientPaint(0, 0, color1, 0, height, color2);
+		}
 		graphics2d.setPaint(gradientPaint);
 		graphics2d.fillRect(0, 0, getWidth(), getHeight());
 	}
@@ -374,10 +517,10 @@ class JGradientPanel extends JPanel {
 
 class JRoundedGradientPanel extends JPanel {
 
-	public int VERTICAL = 0;
-	public int HORIZONTAL = 1;
-	public int DIAGONAL_DOWN = 2;
-	public int DIAGONAL_UP = 3;
+	public int vertical = 0;
+	public int horizontal = 1;
+	public int diagonalDown = 2;
+	public int diagonalUp = 3;
 
 	private Color color1, color2;
 	private int direction;
@@ -421,25 +564,28 @@ class JRoundedGradientPanel extends JPanel {
 
 		GradientPaint gradientPaint;
 
-		if (direction == HORIZONTAL)
-			gradientPaint = new GradientPaint(0, getHeight() / 2, color1, getWidth(), getHeight() / 2, color2);
-
-		else if (direction == DIAGONAL_DOWN)
-			gradientPaint = new GradientPaint(0, getHeight(), color1, getWidth(), 0, color2);
-
-		else if (direction == DIAGONAL_UP)
-			gradientPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
-
-		else
-			gradientPaint = new GradientPaint(0, 0, color1, 0, getHeight(), color2);
-
+		if (direction == horizontal) {
+			float height = getHeight() / 2;
+			float width = getWidth();
+			gradientPaint = new GradientPaint(0, height, color1, width, height, color2);
+		} else if (direction == diagonalDown) {
+			float height = getHeight();
+			float width = getWidth();
+			gradientPaint = new GradientPaint(0, height, color1, width, 0, color2);
+		} else if (direction == diagonalUp) {
+			float height = getHeight();
+			float width = getWidth();
+			gradientPaint = new GradientPaint(0, 0, color1, width, height, color2);
+		} else {
+			float height = getHeight();
+			gradientPaint = new GradientPaint(0, 0, color1, 0, height, color2);
+		}
 		graphics2d.setPaint(gradientPaint);
 		graphics2d.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
 	}
 
-	protected void paintBorder(Graphics g) {
-		g.setColor(getForeground());
-		// g.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 50, 50);
+	protected void paintBorder(Graphics graphics) {
+		graphics.setColor(getForeground());
 	}
 
 	public boolean contains(int x, int y) {

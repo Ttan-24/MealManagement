@@ -2,7 +2,6 @@ package com.uclan.MealManagement;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -20,11 +19,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,79 +37,56 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 
 public class MealManagementInterface extends JFrame {
 
-	private JPanel contentPane;
+	// member variables
 	private JFrame frame;
-	private DefaultTableModel model;
-	private JPanel cardLayoutPane;
 	private CardLayout cardLayout = new CardLayout(0, 0);
 	private CardLayout viewCardLayout = new CardLayout(0, 0);
-	private JTextField UsernameTextField;
-	private JTextField PasswordTextField;
+
+	private JPanel contentPane;
+	private JPanel cardLayoutPane;
 	private JPanel ViewPanel;
-	private JTable FridgeTable;
-	private String mUsername; // member variable
-	private String mUserID;
-	private ArrayList<Recipe> mRecipeList = new ArrayList<Recipe>(); // this is the recipe list from the api
-	private JTable MealPlanTable;
-	public ArrayList<String> FridgeIngredientList = new ArrayList<String>();
-	public ArrayList<String> RecipeQueryList = new ArrayList<String>();
+	private JPanel RecipeFinderPanel;
+	private JPanel RecipeDetailsPanel;
+	private JPanel LoggingPanel;
+	private JPanel FridgePanel;
+	private JPanel AddRecipePanel;
+	private JPanel MainPanel;
+	private JPanel MenuPanel;
+	private JPanel MealPlanPanel;
+	private JPanel RecipePanel;
+	private JPanel FavouritePanel;
+	private JPanel RecipeDetailsContentPanel;
+	private JPanel SettingsPanel;
+
+	private DefaultTableModel model;
 	private DefaultTableModel MealPlanTableModel;
-	ArrayList<Recipe> mPossibleRecipes;
-	private String[] MealPlanColumns;
-	private Object[] RecipeColumns;
 	private DefaultTableModel RecipeTableModel;
-	private JTable RecipeTable;
-	private JTextField RecipeNameTextField;
-	private JTextField IngredientNameTextField;
-	private JTable IngredientTable;
-	private JScrollPane IngredientScrollPane;
 	private DefaultTableModel IngredientTableModel;
 	private DefaultTableModel FavouriteRecipesTableModel;
 	private DefaultTableModel RecRecipesTableModel;
-	private String[] IngredientColumns;
-	private String[] FavouriteRecipesColumns;
-	private String[] RecRecipesColumns;
+	private JTable FridgeTable;
+	private JTable MealPlanTable;
+	private JTable RecipeTable;
+	private JTable IngredientTable;
+	private JTable FavouriteRecipesTable;
+	private JTable RecipeRecommendationsTable;
+	private JTable RecRecipesTable;
+	private JTable RecipeFinderTable;
+
+	private JTextField UsernameTextField;
+	private JTextField PasswordTextField;
+	private JTextField RecipeNameTextField;
+	private JTextField IngredientNameTextField;
 	private JTextField ItemNameTextField;
 	private JTextField QuantityTextField;
 	private JTextField CaloriesTextField;
-	public static ArrayList<String> IngredientTableList = new ArrayList<String>();
-	private JTable FavouriteRecipesTable;
-	private JScrollPane FavouriteRecipesScrollPane;
-	private JLabel SuggestedRecipesLabel;
 	private JTextField SearchRecipeTextField;
-	private JPanel RecipeFinderPanel;
-	private JLabel SearchedRecipesLabel;
 	private JTextField MealTimeTextField;
-	private JTable RecipeRecommendationsTable;
-	private JTextArea RecipeDescriptionTextArea;
-	private JLabel RecipeDetailsTitle;
-	private JTextArea RecipeProcessDetailsTextArea;
-	private JTextArea NutritionTextArea;
-	private JTextArea RecipeIngredientsTextArea;
-	private JTextArea RecipeInstructionsTextArea;
-	private JPanel RecipeDetailsPanel;
 	private JTextField BestBeforeTextField;
-	private JLabel TotalItemsLabel;
-	private JTable RecRecipesTable;
 	private JTextField ChangePasswordTextField;
-	private JPanel LoggingPanel;
-	private JPanel FridgePanel;
-	private ArrayList<String> FridgeTableColumnName;
-	private ArrayList<String> FavouriteRecipesColumnName;
-	private JLabel DateTextLabel;
-	private JButton GenerateMealPlanButton;
-	private JButton SaveMealPlanButton;
-	private JButton FinishWeekButton;
-	private JPanel AddRecipePanel;
-	private JLabel CheckRecipeLabel;
-
-	private Date date = new Date();
-	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	private Calendar calendar = Calendar.getInstance();
 	private JTextField CalorieIntakeTextField;
 	private JTextField CookTimeTextField;
 	private JTextField DescriptionTextField;
@@ -122,66 +96,94 @@ public class MealManagementInterface extends JFrame {
 	private JTextField CalTextField;
 	private JTextField DietCatTextField;
 	private JTextField InstTextField;
-	private JTable RecipeFinderTable;
 
-	public static void deleteAllRows(final DefaultTableModel model) {
-		for (int i = model.getRowCount() - 1; i >= 0; i--) {
-			model.removeRow(i);
-		}
-	}
+	private String mUsername;
+	private String mUserID;
+	private String previousPanel;
+	private String[] MealPlanColumns;
+	private String[] IngredientColumns;
+	private String[] FavouriteRecipesColumns;
+	private String[] RecRecipesColumns;
+	private Object[] RecipeColumns;
 
-	// recipe manager
-	public ArrayList<Recipe> detectRecipe(ArrayList<String> FridgeItemList, ArrayList<Recipe> RecipeList) {
-		// creating possible recipe list
-		ArrayList<Recipe> PossibleRecipes = new ArrayList<Recipe>();
+	private JScrollPane IngredientScrollPane;
+	private JScrollPane FavouriteRecipesScrollPane;
+	private JScrollPane FridgeScrollPane;
+	private JScrollPane MealPlanScrollPane;
+	private JScrollPane RecipeScrollPane;
+	private JScrollPane RecRecipesScrollPane;
+	private JScrollPane scrollPane;
+	private JLabel SearchedRecipesLabel;
+	private JLabel RecipeDetailsTitle;
+	private JLabel TotalItemsLabel;
+	private JLabel CheckRecipeLabel;
+	private JLabel DateTextLabel;
+	private JLabel UsernameLabel;
+	private JLabel PasswordLabel;
+	private JLabel InvalidDetailsLabel;
+	private JLabel ItemNameLabel;
+	private JLabel QuantityLabel;
+	private JLabel CaloriesLabel;
+	private JLabel BestBeforeLabel;
+	private JLabel MealPlanLabel;
+	private JLabel DateLabel;
+	private JLabel RecipeNameLabel;
+	private JLabel IngredientNameLabel;
+	private JLabel MealTimeLabel;
+	private JLabel DescriptionLabel;
+	private JLabel TimeLabel;
+	private JLabel DiffLabel;
+	private JLabel ServeLabel;
+	private JLabel CalLabel;
+	private JLabel DietCatLabel;
+	private JLabel InstLabel;
+	private JLabel RecipesLabel;
+	private JLabel MyFavouriteLabel;
+	private JLabel RecLabel;
+	private JLabel RecipeFinderLabel;
+	private JLabel LabelRecipeName;
+	private JLabel DetailsLabel;
+	private JLabel RecipeDescriptionLabel;
+	private JLabel RecipeProcessDetailsLabel;
+	private JLabel NutritionLabel;
+	private JLabel RecipeIngredientsLabel;
+	private JLabel RecipeInstructionsLabel;
+	private JLabel RecipeRecommendationsLabel;
 
-		// looking through the recipes
-		for (int i = 0; i < RecipeList.size(); i++) {
-			Recipe EachRecipe = RecipeList.get(i);
-			// System.out.println("Checking if we can make" + EachRecipe.mName);
-			boolean canMakeRecipe = true;
+	private JTextArea RecipeDescriptionTextArea;
+	private JTextArea RecipeProcessDetailsTextArea;
+	private JTextArea NutritionTextArea;
+	private JTextArea RecipeIngredientsTextArea;
+	private JTextArea RecipeInstructionsTextArea;
 
-			// looking through each ingredients in the each recipe
-			for (int j = 0; j < EachRecipe.IngredientList.size(); j++) {
+	private JButton GenerateMealPlanButton;
+	private JButton SaveMealPlanButton;
+	private JButton FinishWeekButton;
+	private JButton DeleteFridgeIngredientsButton;
+	private JButton SearchButton;
+	private JButton BackRecipeDetailsButton;
+	private JButton CreateYourOwnRecipeButton;
 
-				String EachIngredient = EachRecipe.IngredientList.get(j).name;
+	private Date date = new Date();
+	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	private Calendar calendar = Calendar.getInstance();
 
-				// System.out.println("do I have?: " + EachIngredient);
-				boolean foundItem = false;
-
-				// looking through each fridge ingredients
-				for (int k = 0; k < FridgeItemList.size(); k++) {
-					String EachFridgeItem = FridgeItemList.get(k);
-					// System.out.println("Checking each fridge item");
-
-					// looking if recipe ingredient is in fridge
-					if (EachFridgeItem.equals(EachIngredient)) {
-						// System.out.println("matched : " + EachIngredient);
-						// System.out.println("I will put that in found ingredients list");
-						foundItem = true;
-					} else {
-						// System.out.println("this isnt what i am looking for" + EachFridgeItem);
-					}
-
-				}
-				if (foundItem == false) {
-					canMakeRecipe = false;
-				}
-				// System.out.println();
-			}
-			// looking at end of each recipe
-			if (canMakeRecipe) {
-				PossibleRecipes.add(EachRecipe);
-			}
-		}
-
-		return PossibleRecipes;
-	}
+	// Arraylists
+	private ArrayList<Recipe> mRecipeList = new ArrayList<Recipe>(); // this is the recipe list from the api
+	public ArrayList<String> FridgeIngredientList = new ArrayList<String>();
+	public ArrayList<String> RecipeQueryList = new ArrayList<String>();
+	public static ArrayList<String> IngredientTableList = new ArrayList<String>();
+	ArrayList<Recipe> mPossibleRecipes;
+	private ArrayList<String> FridgeTableColumnName;
+	private ArrayList<String> FavouriteRecipesColumnName;
+	private JLabel MealPlanStatusLabel;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		LogFileManager.openLog(System.getProperty("user.dir"));
+		LogFileManager.writeToLog("Meal Management started.");
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -200,6 +202,7 @@ public class MealManagementInterface extends JFrame {
 	 * @throws Exception
 	 */
 	public MealManagementInterface() throws Exception {
+		setTitle("Meal Management Application");
 		initialize();
 	}
 
@@ -221,29 +224,12 @@ public class MealManagementInterface extends JFrame {
 		setContentPane(cardLayoutPane);
 		cardLayoutPane.setLayout(cardLayout);
 
-//		// The register panel added to the parent
-//		JPanel RegisterLoggingPanel = new JPanel();
-//		cardLayoutPane.add(RegisterLoggingPanel, "name_panel");
-//		RegisterLoggingPanel.setLayout(null);
-//
-//		JLabel NewUsernameLabel = new JLabel("Username");
-//		NewUsernameLabel.setBounds(181, 150, 119, 30);
-//		RegisterLoggingPanel.add(NewUsernameLabel);
-//
-//		JLabel NewPasswordLabel = new JLabel("Password");
-//		NewPasswordLabel.setBounds(181, 201, 119, 30);
-//		RegisterLoggingPanel.add(NewPasswordLabel);
-//
-//		JLabel ConfirmPasswordLabel = new JLabel("Confirm Password");
-//		ConfirmPasswordLabel.setBounds(181, 253, 119, 30);
-//		RegisterLoggingPanel.add(ConfirmPasswordLabel);
-
 		// The logging panel added to the parent
 		LoggingPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		cardLayoutPane.add(LoggingPanel, "LoggingPanel");
 		LoggingPanel.setLayout(null);
 
-		JLabel UsernameLabel = new JLabel("Username");
+		UsernameLabel = new JLabel("Username");
 		UsernameLabel.setForeground(Color.WHITE);
 		UsernameLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		UsernameLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -293,6 +279,7 @@ public class MealManagementInterface extends JFrame {
 								}
 							} else {
 								System.out.println("Invalid username and password. Try Again?");
+								InvalidDetailsLabel.setText("Invalid username and password. Try Again?");
 							}
 							// cardLayout.show(cardLayoutPane, "MainPanel");
 						}
@@ -303,6 +290,7 @@ public class MealManagementInterface extends JFrame {
 					System.out.println("Valid details");
 				} else {
 					System.out.println("Invalid details");
+					InvalidDetailsLabel.setText("Enter Details");
 				}
 
 			}
@@ -311,7 +299,7 @@ public class MealManagementInterface extends JFrame {
 		LoginButton.setBounds(575, 412, 116, 57);
 		LoggingPanel.add(LoginButton);
 
-		JLabel PasswordLabel = new JLabel("Password");
+		PasswordLabel = new JLabel("Password");
 		PasswordLabel.setForeground(Color.WHITE);
 		PasswordLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		PasswordLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
@@ -321,6 +309,7 @@ public class MealManagementInterface extends JFrame {
 		UsernameTextField = new JRoundedTextField(0);
 		UsernameTextField.setBounds(628, 209, 192, 51);
 		UsernameTextField.setHorizontalAlignment(SwingConstants.CENTER);
+		UsernameTextField.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		LoggingPanel.add(UsernameTextField);
 		UsernameTextField.setColumns(10);
 
@@ -328,19 +317,28 @@ public class MealManagementInterface extends JFrame {
 		PasswordTextField.setColumns(10);
 		PasswordTextField.setBounds(628, 289, 192, 51);
 		PasswordTextField.setHorizontalAlignment(SwingConstants.CENTER);
+		PasswordTextField.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		LoggingPanel.add(PasswordTextField);
 
+		InvalidDetailsLabel = new JLabel("");
+		InvalidDetailsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		InvalidDetailsLabel.setForeground(Color.WHITE);
+		InvalidDetailsLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		InvalidDetailsLabel.setBounds(707, 415, 391, 51);
+		LoggingPanel.add(InvalidDetailsLabel);
+
 		// The main panel added to the parent
-		JPanel MainPanel = new JGradientPanel(lightPurple, lightPink, 2);
+		MainPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		cardLayoutPane.add(MainPanel, "MainPanel");
 		MainPanel.setLayout(null);
 
-		JPanel MenuPanel = new JGradientPanel(menuPurple, menuPurple);
+		MenuPanel = new JGradientPanel(menuPurple, menuPurple);
 		MenuPanel.setBounds(0, 0, 78, 729);
 		MainPanel.add(MenuPanel);
 		MenuPanel.setLayout(null);
 
 		JButton FridgeMenuButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
+		FridgeMenuButton.setToolTipText("Fridge");
 		FridgeMenuButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/fridgeIcon.png")));
 		FridgeMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -349,7 +347,7 @@ public class MealManagementInterface extends JFrame {
 				ResultSet rsFridgeQuery;
 				try {
 					rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
-					SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery, FridgeTableColumnName);
+					DesignManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery, FridgeTableColumnName);
 
 					// make fridge ingredient list
 
@@ -359,14 +357,16 @@ public class MealManagementInterface extends JFrame {
 				} catch (Exception e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
+					LogFileManager.logError(e2.getMessage());
 				}
 			}
 		});
 
-		FridgeMenuButton.setBounds(0, 105, 78, 49);
+		FridgeMenuButton.setBounds(0, 148, 78, 49);
 		MenuPanel.add(FridgeMenuButton);
 
 		JButton MealPlanButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
+		MealPlanButton.setToolTipText("Meal Plan");
 		MealPlanButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/mealIcon.png")));
 		MealPlanButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -374,10 +374,11 @@ public class MealManagementInterface extends JFrame {
 				viewCardLayout.show(ViewPanel, "MealPlanViewPanel");
 			}
 		});
-		MealPlanButton.setBounds(0, 155, 78, 49);
+		MealPlanButton.setBounds(0, 198, 78, 49);
 		MenuPanel.add(MealPlanButton);
 
 		JButton RecipeButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
+		RecipeButton.setToolTipText("Recipe");
 		RecipeButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/recipeIcon.png")));
 		RecipeButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -386,9 +387,9 @@ public class MealManagementInterface extends JFrame {
 				ResultSet rsRecipeQuery;
 				try {
 					rsRecipeQuery = SQLManager.RecipeQuery();
-					SQLManager.populateTableWithResultSetWithCheckBox(RecipeTable, rsRecipeQuery, mUserID);
+					DesignManager.populateTableWithResultSetWithCheckBox(RecipeTable, rsRecipeQuery, mUserID);
 
-					SQLManager.populateSuggestedRecipes(mUserID, SuggestedRecipesLabel);
+					// SQLManager.populateSuggestedRecipes(mUserID, SuggestedRecipesLabel);
 
 					// make fridge ingredient list
 
@@ -398,13 +399,15 @@ public class MealManagementInterface extends JFrame {
 				} catch (Exception e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
+					LogFileManager.logError(e2.getMessage());
 				}
 			}
 		});
-		RecipeButton.setBounds(0, 205, 78, 49);
+		RecipeButton.setBounds(0, 248, 78, 49);
 		MenuPanel.add(RecipeButton);
 
 		JButton FavouritesButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
+		FavouritesButton.setToolTipText("My Favourites");
 		FavouritesButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/favouriteIcon.png")));
 		FavouritesButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -414,20 +417,22 @@ public class MealManagementInterface extends JFrame {
 				viewCardLayout.show(ViewPanel, "FavouriteViewPanel");
 				try {
 					rsFavouriteRecipeQuery = SQLManager.getFavouriteRecipesResultSet(mUserID);
-					SQLManager.populateTableWithResultSet(FavouriteRecipesTable, rsFavouriteRecipeQuery,
+					DesignManager.populateTableWithResultSet(FavouriteRecipesTable, rsFavouriteRecipeQuery,
 							FavouriteRecipesColumnName);
 
 					SQLManager.populateSuggestedRecipesInTable(mUserID, RecRecipesTable);
 
 				} catch (Exception e1) {
 					e1.printStackTrace();
+					LogFileManager.logError(e1.getMessage());
 				}
 			}
 		});
-		FavouritesButton.setBounds(0, 254, 78, 49);
+		FavouritesButton.setBounds(0, 298, 78, 49);
 		MenuPanel.add(FavouritesButton);
 
 		JButton RecipeFinderButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
+		RecipeFinderButton.setToolTipText("Search Recipes");
 		RecipeFinderButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/finderIcon.png")));
 		RecipeFinderButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -435,56 +440,11 @@ public class MealManagementInterface extends JFrame {
 				viewCardLayout.show(ViewPanel, "RecipeFinderPanel");
 			}
 		});
-		RecipeFinderButton.setBounds(0, 302, 78, 49);
+		RecipeFinderButton.setBounds(0, 348, 78, 49);
 		MenuPanel.add(RecipeFinderButton);
 
-		JButton RecipeDetailsButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
-		RecipeDetailsButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/detailsIcon.png")));
-		RecipeDetailsButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				viewCardLayout.show(ViewPanel, "RecipeDetailsPanel");
-
-				// Fill in details
-				try {
-					// Get recipe details
-					HashMap<String, String> recipeDetails = SQLManager.getRecipeDetails(1);
-					String recipeDescription = recipeDetails.get("RecipeDescription");
-					String recipeName = recipeDetails.get("RecipeName");
-					String recipeDifficulty = recipeDetails.get("RecipeDifficulty");
-					String recipeTime = recipeDetails.get("recipeTime");
-					String mealTime = recipeDetails.get("mealTime");
-					String recipeServings = recipeDetails.get("RecipeServings");
-					String recipeCalories = recipeDetails.get("RecipeCalories");
-					String recipeDietCategory = recipeDetails.get("dietCategory");
-					ArrayList<Ingredient> recipeIngredients = SQLManager.getIngredientsOfRecipe("1");
-					String recipeIngredientsString = "";
-					String recipeInstructions = recipeDetails.get("RecipeInstructions");
-
-					// Create string from ingredients
-					for (int i = 0; i < recipeIngredients.size(); i++) {
-						recipeIngredientsString += recipeIngredients.get(i).name + "\n";
-					}
-
-					// Set recipe details in UI
-					RecipeDescriptionTextArea.setText(recipeDescription);
-					RecipeDetailsTitle.setText(recipeName);
-					RecipeProcessDetailsTextArea.setText("Prep time: " + recipeTime + "\n" + "Difficulty: "
-							+ recipeDifficulty + "\n" + "Servings: " + recipeServings);
-					NutritionTextArea.setText("Diet: " + recipeDietCategory + "\n" + "Calories: " + recipeCalories);
-					RecipeIngredientsTextArea.setText(recipeIngredientsString);
-					RecipeInstructionsTextArea.setText(recipeInstructions);
-
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-		RecipeDetailsButton.setBounds(0, 350, 78, 49);
-		MenuPanel.add(RecipeDetailsButton);
-
 		JButton SettingsButton = new JGradientButton(lightMenuPurple, lightMenuPurple);
+		SettingsButton.setToolTipText("Settings");
 		SettingsButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/settingsIcon.png")));
 		SettingsButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -504,7 +464,7 @@ public class MealManagementInterface extends JFrame {
 		ViewPanel.add(FridgePanel, "FridgeViewPanel");
 		FridgePanel.setLayout(null);
 
-		JScrollPane FridgeScrollPane = new JScrollPane();
+		FridgeScrollPane = new JScrollPane();
 		FridgeScrollPane.setBounds(34, 94, 1200, 561);
 		// FridgeScrollPane.getViewport().setBackground(white);
 		FridgePanel.add(FridgeScrollPane);
@@ -538,10 +498,6 @@ public class MealManagementInterface extends JFrame {
 		JButton AddFridgeIngredientsButton = new JButton();
 		AddFridgeIngredientsButton.setBackground(Color.WHITE);
 		AddFridgeIngredientsButton.setIcon(new ImageIcon(MealManagementInterface.class.getResource("/plusSign.png")));
-		AddFridgeIngredientsButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		AddFridgeIngredientsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -551,7 +507,7 @@ public class MealManagementInterface extends JFrame {
 						SQLManager.AddFridgeQuery(mUserID, ItemNameTextField.getText(), BestBeforeTextField.getText(),
 								QuantityTextField.getText(), CaloriesTextField.getText());
 						ResultSet rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
-						SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery, FridgeTableColumnName);
+						DesignManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery, FridgeTableColumnName);
 						TotalItemsLabel.setText("Total Items: " + SQLManager.TotalFridgeItemsQuery());
 						ItemNameTextField.setText("");
 						QuantityTextField.setText("");
@@ -560,6 +516,7 @@ public class MealManagementInterface extends JFrame {
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						LogFileManager.logError(e1.getMessage());
 					}
 				}
 			}
@@ -585,25 +542,25 @@ public class MealManagementInterface extends JFrame {
 		CaloriesTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		FridgePanel.add(CaloriesTextField);
 
-		JLabel ItemNameLabel = new JLabel("Ingredient Name");
+		ItemNameLabel = new JLabel("Ingredient Name");
 		ItemNameLabel.setForeground(Color.WHITE);
 		ItemNameLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		ItemNameLabel.setBounds(34, -5, 202, 40);
 		FridgePanel.add(ItemNameLabel);
 
-		JLabel QuantityLabel = new JLabel("Quantity");
+		QuantityLabel = new JLabel("Quantity");
 		QuantityLabel.setForeground(Color.WHITE);
 		QuantityLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		QuantityLabel.setBounds(591, -5, 202, 40);
 		FridgePanel.add(QuantityLabel);
 
-		JLabel CaloriesLabel = new JLabel("Calories");
+		CaloriesLabel = new JLabel("Calories");
 		CaloriesLabel.setForeground(Color.WHITE);
 		CaloriesLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		CaloriesLabel.setBounds(866, -5, 202, 40);
 		FridgePanel.add(CaloriesLabel);
 
-		JLabel BestBeforeLabel = new JLabel("Best Before");
+		BestBeforeLabel = new JLabel("Best Before");
 		BestBeforeLabel.setForeground(Color.WHITE);
 		BestBeforeLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		BestBeforeLabel.setBounds(310, -5, 202, 40);
@@ -615,7 +572,7 @@ public class MealManagementInterface extends JFrame {
 		BestBeforeTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		FridgePanel.add(BestBeforeTextField);
 
-		JButton DeleteFridgeIngredientsButton = new JButton();
+		DeleteFridgeIngredientsButton = new JButton();
 		DeleteFridgeIngredientsButton.setBackground(Color.WHITE);
 		DeleteFridgeIngredientsButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -625,11 +582,12 @@ public class MealManagementInterface extends JFrame {
 				try {
 					SQLManager.DeleteFridgeQuery(mUserID, itemName);
 					ResultSet rsFridgeQuery = SQLManager.FridgeQuery(mUserID);
-					SQLManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery, FridgeTableColumnName);
+					DesignManager.populateTableWithResultSet(FridgeTable, rsFridgeQuery, FridgeTableColumnName);
 					TotalItemsLabel.setText("Total Items: " + SQLManager.TotalFridgeItemsQuery());
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+					LogFileManager.logError(e1.getMessage());
 				}
 			}
 		});
@@ -643,11 +601,11 @@ public class MealManagementInterface extends JFrame {
 		TotalItemsLabel.setBounds(34, 666, 236, 41);
 		FridgePanel.add(TotalItemsLabel);
 
-		JPanel MealPlanPanel = new JGradientPanel(lightPurple, lightPink, 2);
+		MealPlanPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		ViewPanel.add(MealPlanPanel, "MealPlanViewPanel");
 		MealPlanPanel.setLayout(null);
 
-		JScrollPane MealPlanScrollPane = new JScrollPane();
+		MealPlanScrollPane = new JScrollPane();
 		MealPlanScrollPane.setBounds(34, 110, 1217, 391);
 		MealPlanScrollPane.getViewport().setBackground(white);
 		MealPlanPanel.add(MealPlanScrollPane);
@@ -698,6 +656,7 @@ public class MealManagementInterface extends JFrame {
 						&& MealPlanTable.getSelectedRows().length == 1 && MealPlanTable.getSelectedColumn() != 0) {
 
 					viewCardLayout.show(ViewPanel, "RecipeDetailsPanel");
+					previousPanel = "MealPlanViewPanel";
 
 					// Fill in details
 					try {
@@ -741,6 +700,7 @@ public class MealManagementInterface extends JFrame {
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						LogFileManager.logError(e1.getMessage());
 					}
 				}
 
@@ -748,7 +708,9 @@ public class MealManagementInterface extends JFrame {
 		});
 		MealPlanScrollPane.setViewportView(MealPlanTable);
 
-		JLabel MealPlanLabel = new JLabel("MEAL PLAN FOR YOU");
+		MealPlanLabel = new JLabel("MEAL PLAN FOR YOU");
+		MealPlanLabel.setForeground(Color.WHITE);
+		MealPlanLabel.setBackground(Color.WHITE);
 		MealPlanLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		MealPlanLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		MealPlanLabel.setBounds(358, 11, 456, 57);
@@ -756,6 +718,7 @@ public class MealManagementInterface extends JFrame {
 
 		// Generate meal plan button
 		GenerateMealPlanButton = new JButton("Generate New Meal Plan");
+		GenerateMealPlanButton.setBackground(Color.WHITE);
 		GenerateMealPlanButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -768,6 +731,14 @@ public class MealManagementInterface extends JFrame {
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+					LogFileManager.logError(e1.getMessage());
+				}
+
+				// error text
+				if (MealAlgorithmManager.IsMealPlanGenerated == false) {
+					MealPlanStatusLabel.setText("Could not generate meal plan");
+				} else {
+					MealPlanStatusLabel.setText("Meal plan generated");
 				}
 
 				// Create rows for meal plan table
@@ -815,6 +786,7 @@ public class MealManagementInterface extends JFrame {
 		MealPlanPanel.add(GenerateMealPlanButton);
 
 		SaveMealPlanButton = new JButton("Save Meal Plan");
+		SaveMealPlanButton.setBackground(Color.WHITE);
 		SaveMealPlanButton.setEnabled(false);
 		SaveMealPlanButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -825,31 +797,67 @@ public class MealManagementInterface extends JFrame {
 				FinishWeekButton.setEnabled(true);
 
 				// Remove ingredients from database
-				for (int i = 0; i < MealAlgorithmManager.mealList.size(); i++) {
-					// Get recipe
-					Recipe recipe = MealAlgorithmManager.mealList.get(i);
+				for (int i = 0; i < MealAlgorithmManager.mealPlan.days.size(); i++) {
+					MealPlanDay mealPlanDay = MealAlgorithmManager.mealPlan.days.get(i);
+					Recipe breakfastRecipe = mealPlanDay.breakfastRecipe;
+					Recipe lunchRecipe = mealPlanDay.lunchRecipe;
+					Recipe dinnerRecipe = mealPlanDay.dinnerRecipe;
+					if (breakfastRecipe != null) {
+						// Find all ingredients
+						for (int j = 0; j < breakfastRecipe.IngredientList.size(); j++) {
+							// Get ingredient
+							String ingredient = breakfastRecipe.IngredientList.get(j).name;
 
-					// Find all ingredients
-					for (int j = 0; j < recipe.IngredientList.size(); j++) {
-						// Get ingredient
-						String ingredient = recipe.IngredientList.get(j).name;
+							// Remove
+							try {
+								SQLManager.decrementIngredient(ingredient);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}
 
-						// Remove
-						try {
-							SQLManager.decrementIngredient(ingredient);
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+					if (lunchRecipe != null) {
+						// Find all ingredients
+						for (int j = 0; j < lunchRecipe.IngredientList.size(); j++) {
+							// Get ingredient
+							String ingredient = lunchRecipe.IngredientList.get(j).name;
+
+							// Remove
+							try {
+								SQLManager.decrementIngredient(ingredient);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}
+
+					if (dinnerRecipe != null) {
+						// Find all ingredients
+						for (int j = 0; j < dinnerRecipe.IngredientList.size(); j++) {
+							// Get ingredient
+							String ingredient = dinnerRecipe.IngredientList.get(j).name;
+
+							// Remove
+							try {
+								SQLManager.decrementIngredient(ingredient);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 					}
 				}
+
 			}
 		});
 		SaveMealPlanButton.setFont(new Font("Tahoma", Font.BOLD, 17));
 		SaveMealPlanButton.setBounds(715, 642, 258, 57);
 		MealPlanPanel.add(SaveMealPlanButton);
 
-		JLabel DateLabel = new JLabel("Date: ");
+		DateLabel = new JLabel("Date: ");
 		DateLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 		DateLabel.setBounds(1096, 63, 41, 36);
 		MealPlanPanel.add(DateLabel);
@@ -860,6 +868,7 @@ public class MealManagementInterface extends JFrame {
 		MealPlanPanel.add(DateTextLabel);
 
 		FinishWeekButton = new JButton("Finish Week");
+		FinishWeekButton.setBackground(Color.WHITE);
 		FinishWeekButton.setEnabled(false);
 		FinishWeekButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -886,23 +895,25 @@ public class MealManagementInterface extends JFrame {
 		FinishWeekButton.setBounds(993, 642, 258, 57);
 		MealPlanPanel.add(FinishWeekButton);
 
-//		JTableHeader MealPlanHeader = MealPlanTable.getTableHeader();
-//		MealPlanHeader.setBackground(green);
-//		MealPlanHeader.setForeground(black);
-//		MealPlanHeader.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		MealPlanStatusLabel = new JLabel("");
+		MealPlanStatusLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		MealPlanStatusLabel.setForeground(Color.WHITE);
+		MealPlanStatusLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		MealPlanStatusLabel.setBounds(795, 512, 456, 50);
+		MealPlanPanel.add(MealPlanStatusLabel);
 
 		AddRecipePanel = new JGradientPanel(lightPurple, lightPink, 2);
 		AddRecipePanel.setBackground(Color.LIGHT_GRAY);
 		ViewPanel.add(AddRecipePanel, "AddRecipeViewPanel");
 		AddRecipePanel.setLayout(null);
 
-		JPanel RecipePanel = new JGradientPanel(lightPurple, lightPink, 2);
+		RecipePanel = new JGradientPanel(lightPurple, lightPink, 2);
 		ViewPanel.add(RecipePanel, "RecipeViewPanel");
 		RecipePanel.setLayout(null);
 
-		JScrollPane RecipeScrollPane = new JScrollPane();
-		RecipeScrollPane.setBounds(34, 121, 1217, 535);
-		// FridgeScrollPane.getViewport().setBackground(white);
+		RecipeScrollPane = new JScrollPane();
+		RecipeScrollPane.setBounds(34, 81, 1217, 575);
+		RecipeScrollPane.getViewport().setBackground(white);
 		RecipePanel.add(RecipeScrollPane);
 
 		RecipeColumns = new Object[] { false, "Recipe Name" };
@@ -940,6 +951,7 @@ public class MealManagementInterface extends JFrame {
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
+							LogFileManager.logError(e1.getMessage());
 						}
 					} else {
 						try {
@@ -947,6 +959,7 @@ public class MealManagementInterface extends JFrame {
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
+							LogFileManager.logError(e1.getMessage());
 						}
 					}
 				}
@@ -954,19 +967,18 @@ public class MealManagementInterface extends JFrame {
 				// If a user in the recipe table is double clicked then that recipes details are
 				// displayed opening the recipe details panel
 
-				// need to see why -4 works later on
 				if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1
 						&& RecipeTable.getSelectedRows().length == 1 && RecipeTable.getSelectedColumn() - 4 != 0) {
 
 					viewCardLayout.show(ViewPanel, "RecipeDetailsPanel");
+					previousPanel = "RecipeViewPanel";
 
 					// Fill in details
 					try {
 						// Get recipe details
 //						RecipeTable.getSelectedRow() + 1
 						int recipeID = (Integer) RecipeTable.getModel().getValueAt(RecipeTable.getSelectedRow(), 0);
-						HashMap<String, String> recipeDetails = SQLManager.getRecipeDetails(recipeID); // need to change
-																										// this
+						HashMap<String, String> recipeDetails = SQLManager.getRecipeDetails(recipeID);
 
 						String recipeDescription = recipeDetails.get("RecipeDescription");
 						String recipeName = recipeDetails.get("RecipeName");
@@ -977,9 +989,8 @@ public class MealManagementInterface extends JFrame {
 						String recipeCalories = recipeDetails.get("RecipeCalories");
 						String recipeDietCategory = recipeDetails.get("dietCategory");
 						ArrayList<Ingredient> recipeIngredients = SQLManager
-								.getIngredientsOfRecipe(Integer.toString(recipeID)); // need to
-																						// change
-						// this
+								.getIngredientsOfRecipe(Integer.toString(recipeID));
+
 						String recipeIngredientsString = "";
 						String recipeInstructions = recipeDetails.get("RecipeInstructions");
 
@@ -1000,17 +1011,23 @@ public class MealManagementInterface extends JFrame {
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						LogFileManager.logError(e1.getMessage());
 					}
 				}
 
 			}
 		});
 		RecipeTable.setBounds(32, 99, 709, 378);
-		// RecipeTable.getColumnModel().getColumn(0).setHeaderRenderer(new
-		// CheckboxCellRenderer());
+		RecipeTable.setBackground(white);
+		RecipeTable.setForeground(black);
+		RecipeTable.setRowHeight(32);
+		RecipeTable.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		RecipeTable.setShowGrid(false);
+		RecipeTable.setShowVerticalLines(false);
+		RecipeTable.setShowHorizontalLines(true);
 		RecipeScrollPane.setViewportView(RecipeTable);
 
-		JLabel RecipeNameLabel = new JLabel("Recipe Name");
+		RecipeNameLabel = new JLabel("Recipe Name");
 		RecipeNameLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		RecipeNameLabel.setForeground(Color.WHITE);
 		RecipeNameLabel.setBounds(34, 29, 115, 29);
@@ -1043,7 +1060,7 @@ public class MealManagementInterface extends JFrame {
 						}
 						// update the recipe table
 						ResultSet rsRecipeQuery = SQLManager.RecipeQuery();
-						SQLManager.populateTableWithResultSetWithCheckBox(RecipeTable, rsRecipeQuery, mUserID);
+						DesignManager.populateTableWithResultSetWithCheckBox(RecipeTable, rsRecipeQuery, mUserID);
 						CheckRecipeLabel.setText("Recipe Added");
 						// add a new column dynamically
 						// RecipeTableModel.addColumn("Favorite", new Object[] { false, false, true });
@@ -1060,10 +1077,11 @@ public class MealManagementInterface extends JFrame {
 
 						// delete all row in the ingredient jtable and arraylist
 						IngredientTableList.clear();
-						deleteAllRows(IngredientTableModel);
+						DesignManager.deleteAllRows(IngredientTableModel);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						LogFileManager.logError(e1.getMessage());
 					}
 				}
 			}
@@ -1076,14 +1094,14 @@ public class MealManagementInterface extends JFrame {
 		IngredientNameTextField.setBounds(191, 80, 143, 36);
 		AddRecipePanel.add(IngredientNameTextField);
 
-		JLabel IngredientNameLabel = new JLabel("Ingredient Name");
+		IngredientNameLabel = new JLabel("Ingredient Name");
 		IngredientNameLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		IngredientNameLabel.setForeground(Color.WHITE);
 		IngredientNameLabel.setBounds(34, 79, 159, 29);
 		AddRecipePanel.add(IngredientNameLabel);
 
 		IngredientScrollPane = new JScrollPane();
-		IngredientScrollPane.setBounds(34, 138, 1217, 179);
+		IngredientScrollPane.setBounds(34, 138, 1217, 191);
 		AddRecipePanel.add(IngredientScrollPane);
 
 		IngredientColumns = new String[] { "Ingredient Name" };
@@ -1094,12 +1112,24 @@ public class MealManagementInterface extends JFrame {
 			}
 		};
 		IngredientTable = new JTable(IngredientTableModel);
+		JTableHeader IngredientHeader = IngredientTable.getTableHeader();
+		IngredientHeader.setBackground(lightPink);
+		IngredientHeader.setForeground(black);
+		IngredientHeader.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		IngredientTable.setBackground(Color.WHITE);
+		IngredientTable.setForeground(black);
+		IngredientTable.setRowHeight(32);
+		IngredientTable.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		IngredientTable.setShowGrid(false);
+		IngredientTable.setShowVerticalLines(false);
+		IngredientTable.setShowHorizontalLines(true);
 		IngredientScrollPane.setColumnHeaderView(IngredientTable);
+		IngredientScrollPane.getViewport().setBackground(white);
 		IngredientScrollPane.setViewportView(IngredientTable);
 
 		JButton AddIngredientsButton = new JButton("Add Ingredients");
 		AddIngredientsButton.setBackground(Color.WHITE);
-		AddIngredientsButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		AddIngredientsButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		AddIngredientsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1112,26 +1142,21 @@ public class MealManagementInterface extends JFrame {
 				}
 			}
 		});
-		AddIngredientsButton.setBounds(344, 80, 154, 29);
+		AddIngredientsButton.setBounds(344, 80, 154, 36);
 		AddRecipePanel.add(AddIngredientsButton);
-
-		SuggestedRecipesLabel = new JLabel("Suggested Recipes");
-		SuggestedRecipesLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		SuggestedRecipesLabel.setBounds(34, 81, 711, 29);
-		RecipePanel.add(SuggestedRecipesLabel);
 
 		MealTimeTextField = new JTextField();
 		MealTimeTextField.setBounds(700, 80, 143, 36);
 		AddRecipePanel.add(MealTimeTextField);
 		MealTimeTextField.setColumns(10);
 
-		JLabel MealTimeLabel = new JLabel("Meal Time");
+		MealTimeLabel = new JLabel("Meal Time");
 		MealTimeLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		MealTimeLabel.setForeground(Color.WHITE);
 		MealTimeLabel.setBounds(541, 80, 115, 29);
 		AddRecipePanel.add(MealTimeLabel);
 
-		JLabel DescriptionLabel = new JLabel("Recipe Description ");
+		DescriptionLabel = new JLabel("Recipe Description ");
 		DescriptionLabel.setForeground(Color.WHITE);
 		DescriptionLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		DescriptionLabel.setBounds(541, 21, 159, 46);
@@ -1142,7 +1167,7 @@ public class MealManagementInterface extends JFrame {
 		AddRecipePanel.add(DescriptionTextField);
 		DescriptionTextField.setColumns(10);
 
-		JLabel TimeLabel = new JLabel("Recipe Time");
+		TimeLabel = new JLabel("Recipe Time");
 		TimeLabel.setForeground(Color.WHITE);
 		TimeLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		TimeLabel.setBounds(987, 77, 115, 39);
@@ -1153,7 +1178,7 @@ public class MealManagementInterface extends JFrame {
 		AddRecipePanel.add(TimeTextField);
 		TimeTextField.setColumns(10);
 
-		JLabel DiffLabel = new JLabel("Difficulty");
+		DiffLabel = new JLabel("Difficulty");
 		DiffLabel.setForeground(Color.WHITE);
 		DiffLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		DiffLabel.setBounds(34, 340, 128, 29);
@@ -1164,7 +1189,7 @@ public class MealManagementInterface extends JFrame {
 		DiffTextField.setBounds(34, 380, 128, 41);
 		AddRecipePanel.add(DiffTextField);
 
-		JLabel ServeLabel = new JLabel("Servings");
+		ServeLabel = new JLabel("Servings");
 		ServeLabel.setForeground(Color.WHITE);
 		ServeLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		ServeLabel.setBounds(219, 340, 128, 29);
@@ -1175,7 +1200,7 @@ public class MealManagementInterface extends JFrame {
 		ServeTextField.setBounds(219, 380, 128, 41);
 		AddRecipePanel.add(ServeTextField);
 
-		JLabel CalLabel = new JLabel("Calories");
+		CalLabel = new JLabel("Calories");
 		CalLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		CalLabel.setForeground(Color.WHITE);
 		CalLabel.setBounds(400, 340, 128, 29);
@@ -1186,7 +1211,7 @@ public class MealManagementInterface extends JFrame {
 		CalTextField.setBounds(400, 380, 128, 41);
 		AddRecipePanel.add(CalTextField);
 
-		JLabel DietCatLabel = new JLabel("Diet Category");
+		DietCatLabel = new JLabel("Diet Category");
 		DietCatLabel.setForeground(Color.WHITE);
 		DietCatLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		DietCatLabel.setBounds(587, 340, 128, 29);
@@ -1197,7 +1222,7 @@ public class MealManagementInterface extends JFrame {
 		DietCatTextField.setBounds(587, 380, 128, 41);
 		AddRecipePanel.add(DietCatTextField);
 
-		JLabel InstLabel = new JLabel("Recipe Instructions");
+		InstLabel = new JLabel("Recipe Instructions");
 		InstLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		InstLabel.setForeground(Color.WHITE);
 		InstLabel.setBounds(34, 432, 238, 47);
@@ -1213,13 +1238,27 @@ public class MealManagementInterface extends JFrame {
 		CheckRecipeLabel.setBounds(866, 673, 178, 45);
 		AddRecipePanel.add(CheckRecipeLabel);
 
-		JLabel RecipesLabel = new JLabel("RECIPES");
+		JButton BackEditRecipeButton = new JButton("Back");
+		BackEditRecipeButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				viewCardLayout.show(ViewPanel, "RecipeViewPanel");
+			}
+		});
+		BackEditRecipeButton.setBackground(Color.WHITE);
+		BackEditRecipeButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		BackEditRecipeButton.setBounds(34, 673, 115, 45);
+		AddRecipePanel.add(BackEditRecipeButton);
+
+		RecipesLabel = new JLabel("RECIPES");
+		RecipesLabel.setForeground(Color.WHITE);
 		RecipesLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		RecipesLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		RecipesLabel.setBounds(385, 11, 360, 59);
 		RecipePanel.add(RecipesLabel);
 
-		JButton CreateYourOwnRecipeButton = new JButton("Create Your Own Recipe");
+		CreateYourOwnRecipeButton = new JButton("Create Your Own Recipe");
+		CreateYourOwnRecipeButton.setBackground(Color.WHITE);
 		CreateYourOwnRecipeButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1231,12 +1270,12 @@ public class MealManagementInterface extends JFrame {
 		CreateYourOwnRecipeButton.setBounds(992, 667, 259, 38);
 		RecipePanel.add(CreateYourOwnRecipeButton);
 
-		JPanel FavouritePanel = new JGradientPanel(lightPurple, lightPink, 2);
+		FavouritePanel = new JGradientPanel(lightPurple, lightPink, 2);
 		ViewPanel.add(FavouritePanel, "FavouriteViewPanel");
 		FavouritePanel.setLayout(null);
 
 		FavouriteRecipesScrollPane = new JScrollPane();
-		FavouriteRecipesScrollPane.setBounds(41, 95, 1194, 343);
+		FavouriteRecipesScrollPane.setBounds(41, 95, 1194, 298);
 		FavouritePanel.add(FavouriteRecipesScrollPane);
 
 		FavouriteRecipesColumns = new String[] { "Recipe Name" };
@@ -1247,11 +1286,19 @@ public class MealManagementInterface extends JFrame {
 		FavouriteRecipesColumnName.add("Recipe Name");
 
 		FavouriteRecipesTable = new JTable(FavouriteRecipesTableModel);
+		FavouriteRecipesTable.setBackground(Color.WHITE);
+		FavouriteRecipesTable.setForeground(black);
+		FavouriteRecipesTable.setRowHeight(32);
+		FavouriteRecipesTable.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		FavouriteRecipesTable.setShowGrid(false);
+		FavouriteRecipesTable.setShowVerticalLines(false);
+		FavouriteRecipesTable.setShowHorizontalLines(true);
 		FavouriteRecipesScrollPane.setColumnHeaderView(FavouriteRecipesTable);
+		FavouriteRecipesScrollPane.getViewport().setBackground(white);
 		FavouriteRecipesScrollPane.setViewportView(FavouriteRecipesTable);
 
-		JScrollPane RecRecipesScrollPane = new JScrollPane();
-		RecRecipesScrollPane.setBounds(41, 507, 1194, 189);
+		RecRecipesScrollPane = new JScrollPane();
+		RecRecipesScrollPane.setBounds(41, 462, 1194, 234);
 		FavouritePanel.add(RecRecipesScrollPane);
 
 		RecRecipesColumns = new String[] { "Recipe Name" };
@@ -1259,18 +1306,33 @@ public class MealManagementInterface extends JFrame {
 		RecRecipesTableModel = new DefaultTableModel(RecRecipesData, RecRecipesColumns);
 
 		RecRecipesTable = new JTable(RecRecipesTableModel);
+		JTableHeader RecRecipesHeader = RecRecipesTable.getTableHeader();
+		RecRecipesHeader.setBackground(Color.decode("#f4d8e4"));
+		RecRecipesHeader.setForeground(black);
+		RecRecipesHeader.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+		RecRecipesTable.setBackground(Color.WHITE);
+		RecRecipesTable.setForeground(black);
+		RecRecipesTable.setRowHeight(32);
+		RecRecipesTable.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		RecRecipesTable.setShowGrid(false);
+		RecRecipesTable.setShowVerticalLines(false);
+		RecRecipesTable.setShowHorizontalLines(true);
 		RecRecipesScrollPane.setColumnHeaderView(RecRecipesTable);
+		RecRecipesScrollPane.getViewport().setBackground(white);
 		RecRecipesScrollPane.setViewportView(RecRecipesTable);
 
-		JLabel MyFavouriteLabel = new JLabel("MY FAVOURITES");
+		MyFavouriteLabel = new JLabel("MY FAVOURITES");
+		MyFavouriteLabel.setForeground(Color.WHITE);
 		MyFavouriteLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		MyFavouriteLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		MyFavouriteLabel.setBounds(324, 11, 515, 56);
 		FavouritePanel.add(MyFavouriteLabel);
 
-		JLabel RecLabel = new JLabel("You might also like: ");
+		RecLabel = new JLabel("You might also like: ");
+		RecLabel.setForeground(Color.WHITE);
+		RecLabel.setBackground(Color.WHITE);
 		RecLabel.setFont(new Font("Tahoma", Font.PLAIN, 22));
-		RecLabel.setBounds(41, 449, 540, 47);
+		RecLabel.setBounds(41, 404, 540, 47);
 		FavouritePanel.add(RecLabel);
 
 		RecipeFinderPanel = new JGradientPanel(lightPurple, lightPink, 2);
@@ -1282,7 +1344,7 @@ public class MealManagementInterface extends JFrame {
 		RecipeFinderPanel.add(SearchRecipeTextField);
 		SearchRecipeTextField.setColumns(10);
 
-		JButton SearchButton = new JButton("Search");
+		SearchButton = new JButton("Search");
 		SearchButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1298,10 +1360,12 @@ public class MealManagementInterface extends JFrame {
 								SearchedRecipesLabel);
 
 						// Populate JTable with recipes
-						SQLManager.PopulateJTableWithRecipeList(RecipeFinderTable, recipeList, FridgeTableColumnName);
+						DesignManager.PopulateJTableWithRecipeList(RecipeFinderTable, recipeList,
+								FridgeTableColumnName);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						LogFileManager.logError(e1.getMessage());
 					}
 				}
 			}
@@ -1309,60 +1373,65 @@ public class MealManagementInterface extends JFrame {
 		SearchButton.setBounds(1127, 99, 89, 40);
 		RecipeFinderPanel.add(SearchButton);
 
-		SearchedRecipesLabel = new JLabel("Recipes Found: ");
+		SearchedRecipesLabel = new JLabel("JSON format: ");
+		SearchedRecipesLabel.setForeground(Color.WHITE);
 		SearchedRecipesLabel.setVerticalAlignment(SwingConstants.TOP);
-		SearchedRecipesLabel.setBounds(43, 151, 1173, 149);
+		SearchedRecipesLabel.setBounds(43, 151, 1173, 59);
 		RecipeFinderPanel.add(SearchedRecipesLabel);
 
-		JLabel RecipeFinderLabel = new JLabel("RECIPE FINDER");
+		RecipeFinderLabel = new JLabel("RECIPE FINDER");
+		RecipeFinderLabel.setForeground(Color.WHITE);
 		RecipeFinderLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		RecipeFinderLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		RecipeFinderLabel.setBounds(383, 11, 472, 59);
 		RecipeFinderPanel.add(RecipeFinderLabel);
 
 		RecipeFinderTable = new JTable();
-		RecipeFinderTable.setBounds(43, 325, 1173, 364);
+		RecipeFinderTable.setBounds(43, 232, 1173, 457);
 		RecipeFinderPanel.add(RecipeFinderTable);
 
 		RecipeDetailsPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		ViewPanel.add(RecipeDetailsPanel, "RecipeDetailsPanel");
 		RecipeDetailsPanel.setLayout(null);
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane();
 		scrollPane.setBounds(10, 11, 1241, 660);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		RecipeDetailsPanel.add(scrollPane);
 
-		JPanel RecipeDetailsContentPanel = new JGradientPanel(lightPurple, lightPink, 2);
+		RecipeDetailsContentPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		RecipeDetailsContentPanel.setBounds(0, 0, 750, 800);
 		RecipeDetailsContentPanel.setPreferredSize(new Dimension(750, 1100));
 		scrollPane.setViewportView(RecipeDetailsContentPanel);
 		RecipeDetailsContentPanel.setLayout(null);
 
-		JLabel LabelRecipeName = new JLabel("Recipe Details");
+		LabelRecipeName = new JLabel("Recipe Details");
+		LabelRecipeName.setForeground(Color.WHITE);
 		LabelRecipeName.setHorizontalAlignment(SwingConstants.CENTER);
 		LabelRecipeName.setFont(new Font("Tahoma", Font.PLAIN, 23));
-		LabelRecipeName.setBounds(811, 121, 381, 45);
+		LabelRecipeName.setBounds(417, 130, 381, 45);
 		RecipeDetailsContentPanel.add(LabelRecipeName);
 
 		RecipeDetailsTitle = new JLabel("Salmon Rolls");
+		RecipeDetailsTitle.setForeground(Color.WHITE);
 		RecipeDetailsTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		RecipeDetailsTitle.setFont(new Font("Tahoma", Font.PLAIN, 37));
 		RecipeDetailsTitle.setBounds(328, 43, 554, 87);
 		RecipeDetailsContentPanel.add(RecipeDetailsTitle);
 
-		JLabel DetailsLabel = new JLabel("");
+		DetailsLabel = new JLabel("");
 		// DetailsLabel.setIcon(new ImageIcon("C:\\Users\\Downloads\\meal.png"));
 		DetailsLabel.setBounds(384, 11, 225, 188);
 		RecipeDetailsContentPanel.add(DetailsLabel);
 
 		JSplitPane RecipeDescriptionSplitPane = new JSplitPane();
+		RecipeDescriptionSplitPane.setBackground(lightPink);
 		RecipeDescriptionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		RecipeDescriptionSplitPane.setEnabled(false);
 		RecipeDescriptionSplitPane.setBounds(35, 210, 1157, 110);
 		RecipeDetailsContentPanel.add(RecipeDescriptionSplitPane);
 
-		JLabel RecipeDescriptionLabel = new JLabel("Recipe Description");
+		RecipeDescriptionLabel = new JLabel("Recipe Description");
 		RecipeDescriptionLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		RecipeDescriptionLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		RecipeDescriptionSplitPane.setLeftComponent(RecipeDescriptionLabel);
@@ -1374,12 +1443,14 @@ public class MealManagementInterface extends JFrame {
 		RecipeDescriptionSplitPane.setRightComponent(RecipeDescriptionTextArea);
 
 		JSplitPane ProcessDetailsSplitPane = new JSplitPane();
+		ProcessDetailsSplitPane.setBackground(lightPink);
 		ProcessDetailsSplitPane.setEnabled(false);
 		ProcessDetailsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		ProcessDetailsSplitPane.setBounds(35, 331, 561, 87);
 		RecipeDetailsContentPanel.add(ProcessDetailsSplitPane);
 
-		JLabel RecipeProcessDetailsLabel = new JLabel("Process Details");
+		RecipeProcessDetailsLabel = new JLabel("Process Details");
+		RecipeProcessDetailsLabel.setBackground(Color.WHITE);
 		RecipeProcessDetailsLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		RecipeProcessDetailsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		ProcessDetailsSplitPane.setLeftComponent(RecipeProcessDetailsLabel);
@@ -1390,12 +1461,13 @@ public class MealManagementInterface extends JFrame {
 		RecipeProcessDetailsTextArea.setText("Time: 30 mins\r\nDifficulty: Easy\r\nServings: 2");
 
 		JSplitPane NutritionSplitPane = new JSplitPane();
+		NutritionSplitPane.setBackground(lightPink);
 		NutritionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		NutritionSplitPane.setEnabled(false);
 		NutritionSplitPane.setBounds(606, 331, 586, 87);
 		RecipeDetailsContentPanel.add(NutritionSplitPane);
 
-		JLabel NutritionLabel = new JLabel("Nutrition Details");
+		NutritionLabel = new JLabel("Nutrition Details");
 		NutritionLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		NutritionLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		NutritionSplitPane.setLeftComponent(NutritionLabel);
@@ -1406,12 +1478,13 @@ public class MealManagementInterface extends JFrame {
 		NutritionSplitPane.setRightComponent(NutritionTextArea);
 
 		JSplitPane IngredientsSplitPane = new JSplitPane();
+		IngredientsSplitPane.setBackground(lightPink);
 		IngredientsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		IngredientsSplitPane.setEnabled(false);
 		IngredientsSplitPane.setBounds(35, 429, 1157, 157);
 		RecipeDetailsContentPanel.add(IngredientsSplitPane);
 
-		JLabel RecipeIngredientsLabel = new JLabel("Ingredients");
+		RecipeIngredientsLabel = new JLabel("Ingredients");
 		RecipeIngredientsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		RecipeIngredientsLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		IngredientsSplitPane.setLeftComponent(RecipeIngredientsLabel);
@@ -1423,12 +1496,13 @@ public class MealManagementInterface extends JFrame {
 		IngredientsSplitPane.setRightComponent(RecipeIngredientsTextArea);
 
 		JSplitPane InstructionsSplitPane = new JSplitPane();
+		InstructionsSplitPane.setBackground(lightPink);
 		InstructionsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		InstructionsSplitPane.setEnabled(false);
 		InstructionsSplitPane.setBounds(35, 597, 1157, 210);
 		RecipeDetailsContentPanel.add(InstructionsSplitPane);
 
-		JLabel RecipeInstructionsLabel = new JLabel("Instructions");
+		RecipeInstructionsLabel = new JLabel("Instructions");
 		RecipeInstructionsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		RecipeInstructionsLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		InstructionsSplitPane.setLeftComponent(RecipeInstructionsLabel);
@@ -1439,45 +1513,30 @@ public class MealManagementInterface extends JFrame {
 		RecipeInstructionsTextArea.setLineWrap(true);
 		InstructionsSplitPane.setRightComponent(RecipeInstructionsTextArea);
 
-		JSplitPane RecommendationsSplitPane = new JSplitPane();
-		RecommendationsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		RecommendationsSplitPane.setEnabled(false);
-		RecommendationsSplitPane.setBounds(35, 845, 1157, 147);
-		RecipeDetailsContentPanel.add(RecommendationsSplitPane);
-
-		JLabel RecipeRecommendationsLabel = new JLabel("Recommendations");
-		RecipeRecommendationsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		RecipeRecommendationsLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		RecommendationsSplitPane.setLeftComponent(RecipeRecommendationsLabel);
-
-		RecipeRecommendationsTable = new JTable();
-		RecipeRecommendationsTable
-				.setModel(new DefaultTableModel(new Object[][] { { "Pancakes", "Porridge", "Rasmalai", null }, },
-						new String[] { "New column", "New column", "New column", "New column" }));
-		RecommendationsSplitPane.setRightComponent(RecipeRecommendationsTable);
-
-		JButton BackButton = new JButton("Back");
-		BackButton.addMouseListener(new MouseAdapter() {
+		BackRecipeDetailsButton = new JButton("Back");
+		BackRecipeDetailsButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		BackRecipeDetailsButton.setBounds(10, 682, 89, 36);
+		RecipeDetailsPanel.add(BackRecipeDetailsButton);
+		BackRecipeDetailsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				viewCardLayout.show(ViewPanel, previousPanel);
 			}
 		});
-		BackButton.setBackground(Color.WHITE);
-		BackButton.setBounds(33, 86, 89, 23);
-		RecipeDetailsContentPanel.add(BackButton);
+		BackRecipeDetailsButton.setBackground(Color.WHITE);
 
-		JPanel SettingsPanel = new JGradientPanel(lightPurple, lightPink, 2);
+		SettingsPanel = new JGradientPanel(lightPurple, lightPink, 2);
 		ViewPanel.add(SettingsPanel, "SettingsViewPanel");
 		SettingsPanel.setLayout(null);
 
 		JLabel ChangePasswordLabel = new JLabel("Change Password: ");
 		ChangePasswordLabel.setForeground(Color.WHITE);
 		ChangePasswordLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		ChangePasswordLabel.setBounds(97, 504, 214, 68);
+		ChangePasswordLabel.setBounds(97, 551, 214, 68);
 		SettingsPanel.add(ChangePasswordLabel);
 
 		ChangePasswordTextField = new JRoundedTextField(0);
-		ChangePasswordTextField.setBounds(281, 514, 232, 57);
+		ChangePasswordTextField.setBounds(281, 561, 232, 57);
 		SettingsPanel.add(ChangePasswordTextField);
 		ChangePasswordTextField.setColumns(10);
 
@@ -1490,7 +1549,7 @@ public class MealManagementInterface extends JFrame {
 			}
 		});
 		LogoutLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		LogoutLabel.setBounds(97, 637, 168, 57);
+		LogoutLabel.setBounds(1083, 636, 168, 57);
 		Font font = LogoutLabel.getFont();
 		Map attributes = font.getAttributes();
 		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
@@ -1507,21 +1566,34 @@ public class MealManagementInterface extends JFrame {
 					try {
 						SQLManager.UpdatePassword(mUserID, ChangePasswordTextField.getText());
 						ChangePasswordTextField.setText("");
-
-						UserPreferenceManager.maxCookTime = Integer.valueOf(CookTimeTextField.getText());
-						UserPreferenceManager.maxCalories = Integer.valueOf(CalorieIntakeTextField.getText());
-
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						LogFileManager.logError(e1.getMessage());
 					}
 				}
 			}
 		});
-		ChangeButton.setBounds(540, 514, 157, 58);
+		ChangeButton.setBounds(540, 557, 157, 58);
 		SettingsPanel.add(ChangeButton);
 
+		JButton SavePreferencesButton = new JRoundedGradientButton("Save Preferences", Color.WHITE, Color.WHITE);
+		SavePreferencesButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				UserPreferenceManager.maxCookTime = Integer.valueOf(CookTimeTextField.getText());
+				UserPreferenceManager.maxCalories = Integer.valueOf(CalorieIntakeTextField.getText());
+			}
+		});
+		SavePreferencesButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		SavePreferencesButton.setBackground(Color.WHITE);
+
+		SavePreferencesButton.setBounds(97, 445, 611, 48);
+		SettingsPanel.add(SavePreferencesButton);
+
 		JLabel SettingsLabel = new JLabel("MY SETTINGS");
+		SettingsLabel.setForeground(Color.WHITE);
+		SettingsLabel.setBackground(Color.WHITE);
 		SettingsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		SettingsLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		SettingsLabel.setBounds(442, 11, 345, 77);
@@ -1530,7 +1602,7 @@ public class MealManagementInterface extends JFrame {
 		JLabel HelpLabel = new JLabel("Need Help? -  email us - mealplan@management.co.uk");
 		HelpLabel.setForeground(Color.WHITE);
 		HelpLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		HelpLabel.setBounds(97, 568, 599, 68);
+		HelpLabel.setBounds(97, 630, 599, 68);
 		SettingsPanel.add(HelpLabel);
 
 		JLabel MyPreferencesLabel = new JLabel("My Preferences:");
@@ -1548,13 +1620,13 @@ public class MealManagementInterface extends JFrame {
 		JLabel DietLabel = new JLabel("Diet:");
 		DietLabel.setForeground(Color.WHITE);
 		DietLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		DietLabel.setBounds(97, 387, 103, 48);
+		DietLabel.setBounds(97, 377, 103, 48);
 		SettingsPanel.add(DietLabel);
 
 		JLabel DifficultyLabel = new JLabel("Difficulty:");
 		DifficultyLabel.setForeground(Color.WHITE);
 		DifficultyLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		DifficultyLabel.setBounds(97, 316, 103, 48);
+		DifficultyLabel.setBounds(97, 304, 103, 48);
 		SettingsPanel.add(DifficultyLabel);
 
 		// Radio buttons for customisation
@@ -1562,17 +1634,18 @@ public class MealManagementInterface extends JFrame {
 		JRadioButton EasyRadioButton = new JRadioButton("  Easy");
 		EasyRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		EasyRadioButton.setForeground(Color.BLACK);
-		EasyRadioButton.setBounds(206, 331, 125, 31);
+		EasyRadioButton.setBounds(206, 314, 125, 31);
+		EasyRadioButton.setSelected(true);
 		SettingsPanel.add(EasyRadioButton);
 
 		JRadioButton MediumRadioButton = new JRadioButton("  Medium");
 		MediumRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		MediumRadioButton.setBounds(370, 331, 125, 31);
+		MediumRadioButton.setBounds(370, 314, 125, 31);
 		SettingsPanel.add(MediumRadioButton);
 
 		JRadioButton DifficultRadioButton = new JRadioButton("  Difficult");
 		DifficultRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		DifficultRadioButton.setBounds(536, 331, 170, 31);
+		DifficultRadioButton.setBounds(527, 314, 170, 31);
 		SettingsPanel.add(DifficultRadioButton);
 
 		ButtonGroup difficultyGroup = new ButtonGroup();
@@ -1601,17 +1674,17 @@ public class MealManagementInterface extends JFrame {
 
 		JRadioButton VegRadioButton = new JRadioButton("  Veg");
 		VegRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		VegRadioButton.setBounds(206, 393, 125, 42);
+		VegRadioButton.setBounds(206, 381, 125, 42);
 		SettingsPanel.add(VegRadioButton);
 
 		JRadioButton VeganRadioButton = new JRadioButton("  Vegan");
 		VeganRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		VeganRadioButton.setBounds(370, 393, 125, 42);
+		VeganRadioButton.setBounds(370, 381, 125, 42);
 		SettingsPanel.add(VeganRadioButton);
 
 		JRadioButton NoPreferencesRadioButton = new JRadioButton("  No Preferences");
 		NoPreferencesRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		NoPreferencesRadioButton.setBounds(538, 393, 168, 42);
+		NoPreferencesRadioButton.setBounds(540, 381, 168, 42);
 		SettingsPanel.add(NoPreferencesRadioButton);
 
 		ButtonGroup dietGroup = new ButtonGroup();
@@ -1646,35 +1719,6 @@ public class MealManagementInterface extends JFrame {
 		CookTimeMinutesLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		CookTimeMinutesLabel.setBounds(437, 217, 76, 44);
 		SettingsPanel.add(CookTimeMinutesLabel);
-
-		// login function
-		// get connection to the database
-		// checks the username textfield and password textfield against the database
-		// if yes - show mainpanel; no - give a label saying "Details not correct";
 	}
 
-	/**
-	 * Renders a custom table column header that contains a checkbox.
-	 */
-	class CheckboxCellRenderer extends DefaultTableCellRenderer {
-		private static final long serialVersionUID = -5199637653685240121L;
-		Color green = Color.decode("#A6FFCB");
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			TableCellRenderer boolRenderer = table.getDefaultRenderer(Boolean.class);
-			JComponent boolComp = null;
-			if (value.toString().equals("false")) {
-				boolComp = (JComponent) boolRenderer.getTableCellRendererComponent(table, false, isSelected, hasFocus,
-						row, column);
-			} else {
-				boolComp = (JComponent) boolRenderer.getTableCellRendererComponent(table, true, isSelected, hasFocus,
-						row, column);
-			}
-			boolComp.setBackground(green);
-			boolComp.setBorder(BorderFactory.createEmptyBorder());
-			return boolComp;
-		}
-	}
 }

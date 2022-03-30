@@ -15,6 +15,8 @@ public class MealAlgorithmManager {
 	public static ArrayList<Recipe> allRecipes = new ArrayList<Recipe>();
 	public static ArrayList<Recipe> possibleRecipes = new ArrayList<Recipe>();
 	public static ArrayList<Recipe> mealList = new ArrayList<Recipe>();
+	public static ArrayList<Recipe> possibleFavouriteRecipes = new ArrayList<Recipe>();
+	public static boolean IsMealPlanGenerated;
 
 	// Main event
 	public static MealPlan CalculateMealPlan(String UserId) throws Exception {
@@ -44,6 +46,13 @@ public class MealAlgorithmManager {
 			day.breakfastRecipe = getRecipeAtMealTime("breakfast");
 			day.lunchRecipe = getRecipeAtMealTime("lunch");
 			day.dinnerRecipe = getRecipeAtMealTime("dinner");
+		}
+		// error message
+		if (getRecipeAtMealTime("breakfast") != null && getRecipeAtMealTime("lunch") != null
+				&& getRecipeAtMealTime("dinner") != null) {
+			IsMealPlanGenerated = true;
+		} else {
+			IsMealPlanGenerated = false;
 		}
 
 		// Return
@@ -128,14 +137,45 @@ public class MealAlgorithmManager {
 	}
 
 	public static Recipe getRecipeAtMealTime(String mealTime) {
+		// Make lists
+		ArrayList<Recipe> favouriteRecipesAtCorrectTime = new ArrayList<Recipe>();
+		ArrayList<Recipe> nonFavouriteRecipesAtCorrectTime = new ArrayList<Recipe>();
+
+		// Get favourite recipes at correct time
 		Recipe recipe;
+		for (int i = 0; i < possibleFavouriteRecipes.size(); i++) {
+			recipe = possibleFavouriteRecipes.get(i);
+			if (recipe.mMealTime.equals(mealTime)) {
+				favouriteRecipesAtCorrectTime.add(recipe);
+			}
+		}
+
+		// Get non favourite recipes at correct time
 		for (int i = 0; i < possibleRecipes.size(); i++) {
 			recipe = possibleRecipes.get(i);
 			if (recipe.mMealTime.equals(mealTime)) {
-				return recipe;
+				nonFavouriteRecipesAtCorrectTime.add(recipe);
 			}
 		}
+
+		// If there is a favourite recipe return a random one
+		if (favouriteRecipesAtCorrectTime.size() != 0) {
+			int random = getRandomNumber(0, favouriteRecipesAtCorrectTime.size());
+			return favouriteRecipesAtCorrectTime.get(random);
+		}
+
+		// If there is a non favourite recipe return a random one
+		if (nonFavouriteRecipesAtCorrectTime.size() != 0) {
+			int random = getRandomNumber(0, nonFavouriteRecipesAtCorrectTime.size());
+			return nonFavouriteRecipesAtCorrectTime.get(random);
+		}
+
+		// Return null if there are no possible recipes
 		return null;
+	}
+
+	public static int getRandomNumber(int min, int max) {
+		return (int) ((Math.random() * (max - min)) + min);
 	}
 
 	public static void removeRecipeIngredientsFromFridge(Recipe recipe) {
@@ -234,28 +274,30 @@ public class MealAlgorithmManager {
 
 			// Add if favourite
 			if (recipeIsFavourite) {
+				possibleFavouriteRecipes.add(recipe);
+			} else {
 				newMealPlanList.add(recipe);
 			}
 		}
 
-		// add non favourites
-		for (int i = 0; i < mealPlan.size(); i++) {
-			// Set variables
-			Recipe recipe = mealPlan.get(i);
-			boolean recipeIsFavourite = false;
-
-			// Check if recipe is favourite
-			for (int j = 0; j < favouriteRecipeList.size(); j++) {
-				if (mealPlan.get(i).mName.equals(favouriteRecipeList.get(j))) {
-					recipeIsFavourite = true;
-				}
-			}
-
-			// Add if not favourite
-			if (!recipeIsFavourite) {
-				newMealPlanList.add(recipe);
-			}
-		}
+//		// add non favourites
+//		for (int i = 0; i < mealPlan.size(); i++) {
+//			// Set variables
+//			Recipe recipe = mealPlan.get(i);
+//			boolean recipeIsFavourite = false;
+//
+//			// Check if recipe is favourite
+//			for (int j = 0; j < favouriteRecipeList.size(); j++) {
+//				if (mealPlan.get(i).mName.equals(favouriteRecipeList.get(j))) {
+//					recipeIsFavourite = true;
+//				}
+//			}
+//
+//			// Add if not favourite
+//			if (!recipeIsFavourite) {
+//				newMealPlanList.add(recipe);
+//			}
+//		}
 
 		// Set new meal plan
 		return newMealPlanList;

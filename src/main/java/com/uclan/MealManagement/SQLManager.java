@@ -1,22 +1,17 @@
 package com.uclan.MealManagement;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 
 public class SQLManager {
 
@@ -29,7 +24,6 @@ public class SQLManager {
 		try {
 			String driver = "com.mysql.cj.jdbc.Driver";
 			String url = "jdbc:mysql://localhost:3306/store_db?serverTimezone=UTC";
-			// String url = "jdbc:mysql://localhost:3306/store?serverTimezone=UTC";
 			String username = "root";
 			String password = "root";
 			Class.forName(driver);
@@ -39,10 +33,13 @@ public class SQLManager {
 			return conn;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			LogFileManager.logError(e.getMessage());
 		} catch (Exception ex) {
 			System.out.println(ex);
+			LogFileManager.logError(ex.getMessage());
 		} catch (Throwable ex) {
 			System.out.println(ex);
+			LogFileManager.logError(ex.getMessage());
 		}
 		return null; // couldn't return a connection
 	}
@@ -54,7 +51,6 @@ public class SQLManager {
 			SQLManager.User = Username;
 			SQLManager.Pass = Password;
 			System.out.println("Connection Valid");
-			// LogFileManager.logError("If connection is valid -- psc");
 			return true;
 		} else {
 			System.out.println("Connection not valid");
@@ -72,17 +68,13 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			// Filtering out groups without a name or any patients.
 			String query = "SELECT Username, Password FROM store_db.customer WHERE Username = '" + Username + "';";
-			// String query = "SELECT Username, Password FROM store.customer WHERE Username
-			// = '" + Username + "';";
 
 			Statement st = getConnection.createStatement();
 			ResultSet rs = st.executeQuery(query);
 
 			while (rs.next()) {
-				// Map<String, String> loginDetail = new HashMap<String, String>();
 				loginDetail.put("Username", rs.getString(1));
 				loginDetail.put("Password", rs.getString(2));
-				// loginDetails.add(loginDetail);
 			}
 
 			if (Username.equals(loginDetail.get("Username")) && Password.equals(loginDetail.get("Password"))) {
@@ -92,8 +84,8 @@ public class SQLManager {
 			}
 
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage());
 			e.printStackTrace();
+			LogFileManager.logError(e.getMessage());
 			return false;
 		}
 	}
@@ -106,21 +98,18 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			// Filtering out groups without a name or any patients.
 			String query = "SELECT * FROM store_db.customer WHERE Username = '" + Username + "';";
-//			String query = "SELECT * FROM store.customer WHERE Username = '" + Username + "';";
 			Statement st = getConnection.createStatement();
 			ResultSet rs = st.executeQuery(query);
 
 			while (rs.next()) {
-				// Map<String, String> Detail = new HashMap<String, String>();
 				Details.put("idcustomer", rs.getString(1));
-//				Details.put("Username", rs.getString(12));
 				Details.put("Username", rs.getString(4));
-				// Details.add(Detail);
 			}
 
 			return Details;
 		} catch (Exception e) {
 			e.printStackTrace();
+			LogFileManager.logError(e.getMessage());
 			return null;
 		}
 	}
@@ -132,16 +121,13 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			query = "Select p.itemName, p.bestbefore, p.quantity, p.calories from store_db.items p LEFT JOIN store_db.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
 					+ customerID + "';";
-			// query = "Select p.itemName, p.quantity, p.calories from store.item p LEFT
-			// JOIN store.customer a ON p.idcustomer = a.idcustomer where a.idcustomer = '"
-			// + customerID + "';";
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			return rs;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
+			LogFileManager.logError(e.getMessage());
 			return null;
 		}
 	}
@@ -156,16 +142,13 @@ public class SQLManager {
 			query = "INSERT INTO store_db.items (idcustomer, itemName, bestbefore, quantity, calories) VALUES ('"
 					+ customerID + "', '" + itemName + "', '" + bestBefore + "', '" + quantity + "', '" + calories
 					+ "');";
-
-//			query = "INSERT INTO store.item (idcustomer, itemName, quantity, calories) VALUES ('" + customerID
-//					+ "', '" + itemName + "', '" + quantity + "', '" + calories + "');";
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);
 
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
+			LogFileManager.logError(e.getMessage());
 		}
 	}
 
@@ -183,7 +166,7 @@ public class SQLManager {
 			st.executeUpdate(query);
 
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 		}
 	}
@@ -201,7 +184,7 @@ public class SQLManager {
 			}
 			return totalCount;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -212,12 +195,11 @@ public class SQLManager {
 		try {
 			Connection getConnection = getConnection();
 			query = "SELECT idrecipe, recipeName, mealTime FROM store_db.recipe;";
-//			query = "SELECT * FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			return rs;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -230,12 +212,11 @@ public class SQLManager {
 			query = "SELECT idrecipe, recipeName, mealTime, recipeTime, recipeCalories, recipeDifficulty FROM store_db.recipe "
 					+ "WHERE recipeCalories < '" + maxCalories + "' AND recipeDifficulty = '" + difficulty
 					+ "' AND recipeTime < '" + maxCookTime + "';";
-//			query = "SELECT * FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			return rs;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -252,7 +233,6 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			query = "SELECT idrecipe, recipeName, mealTime, recipeTime, recipeCalories, recipeDifficulty FROM store_db.recipe "
 					+ "WHERE recipeCuisine = '" + cuisine + "';";
-//			query = "SELECT * FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 
@@ -263,7 +243,7 @@ public class SQLManager {
 
 			return recipeList;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -281,14 +261,13 @@ public class SQLManager {
 					+ recipeName + "', '" + mealTime + "', '" + recipeDescription + "', '" + recipeTime + "', '"
 					+ recipeDietCategory + "', '" + recipeCalories + "', '" + recipeDifficulty + "', '" + recipeServings
 					+ "', '" + recipeInstructions + "', '" + recipeCuisine + "')";
-//			query = "INSERT INTO store.recipe (recipeName, mealTime) VALUES ('" + RecipeName + "', '" + mealTime + "');";
 
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);
 
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 		}
 	}
@@ -300,11 +279,10 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			query = "INSERT INTO store_db.ingredients (ingredientName,  idrecipe) VALUES ('" + ingredientName + "', '"
 					+ idrecipe + "')";
-//			query = "INSERT INTO store.ingredient (ingredientName,  idrecipe) VALUES ('" + ingredientName + "', '"
-//					+ idrecipe + "')";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			st.executeUpdate(query);
 		} catch (Exception e) {
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			System.out.println(e);
 		}
 	}
@@ -315,7 +293,6 @@ public class SQLManager {
 		try {
 			Connection getConnection = getConnection();
 			query = "SELECT MAX(idrecipe) FROM store_db.recipe;";
-//			query = "SELECT MAX(idrecipe) FROM store.recipe;";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			while (rs.next()) {
@@ -323,7 +300,7 @@ public class SQLManager {
 			}
 			return id;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -337,14 +314,11 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			query = "Select p.ingredientName from store_db.ingredients p LEFT JOIN store_db.recipe a ON p.idrecipe = a.idrecipe where a.idrecipe = '"
 					+ recipeId + "';";
-//			query = "Select p.ingredientName from store.ingredient p LEFT JOIN store.recipe a ON p.idrecipe = a.idrecipe where a.idrecipe = '"
-//					+ recipeId + "';";
 			// it allows to reset the result set
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 
 			while (rs.next()) {
-				// Map<String, String> Detail = new HashMap<String, String>();
 				Ingredient ingredient = new Ingredient();
 				ingredient.name = rs.getString(1);
 				IngredientList.add(ingredient);
@@ -352,7 +326,7 @@ public class SQLManager {
 
 			return IngredientList;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -365,8 +339,6 @@ public class SQLManager {
 			Connection getConnection = getConnection();
 			query = "Select p.recipeName from store_db.recipe p LEFT JOIN store_db.favourites a ON p.idrecipe = a.recipeId where a.customerID = '"
 					+ customerId + "';";
-//			query = "Select p.recipeName from store.recipe p LEFT JOIN store.favourite a ON p.idrecipe = a.recipeId where a.idcustomer = '"
-//					+ customerId + "';";
 			Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			ResultSet rs = st.executeQuery(query);
 			while (rs.next()) {
@@ -375,7 +347,7 @@ public class SQLManager {
 
 			return FavouriteRecipeList;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -391,7 +363,7 @@ public class SQLManager {
 			ResultSet rs = st.executeQuery(query);
 			return rs;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -407,7 +379,7 @@ public class SQLManager {
 			int rs = st.executeUpdate(query);
 			return rs;
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 			return null;
 		}
@@ -427,7 +399,7 @@ public class SQLManager {
 			st.executeUpdate(query);
 
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 		}
 	}
@@ -446,167 +418,9 @@ public class SQLManager {
 			st.executeUpdate(query);
 
 		} catch (SQLException e) {
-			// LogFileManager.logError(e.getMessage() + "(" + query + " )");
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 			e.printStackTrace();
 		}
-	}
-
-	public static void populateTableWithResultSet(JTable table, ResultSet rs, ArrayList<String> columnName)
-			throws SQLException {
-
-		// Resultset metadata
-		ResultSetMetaData metaData = rs.getMetaData();
-
-		// Table columns
-		Vector<String> columnNames = new Vector<String>();
-		int columnCount = metaData.getColumnCount();
-		for (int column = 1; column <= columnCount; column++) {
-			columnNames.add(columnName.get(column));
-		}
-
-		// Table data
-		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-		while (rs.next()) {
-			Vector<Object> vector = new Vector<Object>();
-			for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-				vector.add(rs.getObject(columnIndex));
-			}
-			data.add(vector);
-		}
-
-		rs.beforeFirst(); // the populatetablewithresultset it will end up puting the cursor at the end so
-		// we need before first to reset the cursor in the beginning
-
-		// Create model
-		DefaultTableModel model = new DefaultTableModel(data, columnNames);
-
-		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
-		Color lightPink = Color.decode("#f4d8e4");
-		// Set table model
-		table.setModel(model);
-		JTableHeader Header = table.getTableHeader();
-		Header.setBackground(lightPink);
-		Header.setForeground(black);
-		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-
-		// Resize table
-		// resizeTable(table);
-
-		// Set resize mode
-		// table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-	}
-
-	public static void populateTableWithResultSetWithCheckBox(JTable table, ResultSet rs, String customerId)
-			throws Exception {
-
-		// Resultset metadata
-		ResultSetMetaData metaData = rs.getMetaData();
-
-		ArrayList<String> columnName = new ArrayList<String>();
-		columnName.add("");
-		columnName.add("Sr no.");
-		columnName.add("Recipe Name");
-		columnName.add("Meal Time");
-		columnName.add("Favourite");
-
-		// Table columns
-		Vector<String> columnNames = new Vector<String>();
-		int columnCount = metaData.getColumnCount();
-		for (int column = 1; column <= columnCount; column++) {
-			columnNames.add(columnName.get(column));
-		}
-
-		// Table data
-		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-		while (rs.next()) {
-			Vector<Object> vector = new Vector<Object>();
-			for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-				vector.add(rs.getObject(columnIndex));
-			}
-			data.add(vector);
-		}
-
-		rs.beforeFirst(); // the populatetablewithresultset it will end up puting the cursor at the end so
-		// we need before first to reset the cursor in the beginning
-
-		// Create model
-		DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-			@Override
-			public Class getColumnClass(int columnIndex) {
-				if (columnIndex == 3) {
-					return Boolean.class;
-				} else {
-					return Object.class;
-				}
-			}
-		};
-		// model.addRow(new Object[] { false });
-
-		ArrayList<String> favouriteList = getFavouriteRecipes(customerId);
-		Vector<Boolean> toggleList = new Vector<Boolean>();
-		for (int i = 0; i < model.getRowCount(); i++) {
-			Object getValue = model.getValueAt(i, 1);
-			if (favouriteList.contains(getValue)) {
-				toggleList.add(true);
-			} else {
-				toggleList.add(false);
-			}
-		}
-		model.addColumn("Favourite", toggleList);
-		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
-		Color lightPink = Color.decode("#f4d8e4");
-		// Set table model
-		table.setModel(model);
-		JTableHeader Header = table.getTableHeader();
-		Header.setBackground(lightPink);
-		Header.setForeground(black);
-		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-
-		// Resize table
-		// resizeTable(table);
-
-		// Set resize mode
-		// table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-	}
-
-	public static void PopulateJTableWithRecipeList(JTable table, ArrayList<Recipe> recipeList,
-			ArrayList<String> columnNames) throws SQLException {
-		// Table columns
-		Vector<String> columnNamesVector = new Vector<String>();
-		int columnCount = columnNames.size();
-		for (int column = 0; column < 2; column++) {
-			columnNamesVector.add(columnNames.get(column));
-		}
-
-		// Table data
-		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-		for (int i = 0; i < recipeList.size(); i++) {
-			Vector<Object> vector = new Vector<Object>();
-			vector.add(recipeList.get(i).mName);
-			vector.add(recipeList.get(i).mMealTime);
-			data.add(vector);
-		}
-
-		// Create model
-		DefaultTableModel model = new DefaultTableModel(data, columnNamesVector);
-
-		Color black = Color.getHSBColor(0.0f, 0.0f, 0.0f);
-		Color lightPink = Color.decode("#f4d8e4");
-		// Set table model
-		table.setModel(model);
-		JTableHeader Header = table.getTableHeader();
-		Header.setBackground(lightPink);
-		Header.setForeground(black);
-		Header.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-
-		// Resize table
-		// resizeTable(table);
-
-		// Set resize mode
-		// table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
 	}
 
 	public static ArrayList<HashMap<String, String>> findSimilarUsers(String customerId)
@@ -616,13 +430,8 @@ public class SQLManager {
 		ArrayList<HashMap<String, String>> SimilarUserList = new ArrayList<HashMap<String, String>>();
 
 		Connection getConnection = getConnection();
-		query = "SELECT cus.customerId AS current_user_id, ous.customerId AS other_user_id, COUNT(*) AS same_recipe_count FROM store_db.favourites AS ous JOIN store_db.favourites AS cus ON cus.recipeId = ous.recipeId AND cus.customerId <> ous.customerId WHERE cus.customerId = '"
-				+ customerId
-				+ "' GROUP BY cus.customerId, ous.customerId ORDER BY cus.customerId, same_recipe_count DESC";
-
-//		query = "SELECT cus.idcustomer AS current_user_id, ous.idcustomer AS other_user_id, COUNT(*) AS same_recipe_count FROM store.favourite AS ous JOIN store.favourite AS cus ON cus.recipeId = ous.recipeId AND cus.idcustomer <> ous.idcustomer WHERE cus.idcustomer = '"
-//				+ customerId
-//				+ "' GROUP BY cus.idcustomer, ous.idcustomer ORDER BY cus.idcustomer, same_recipe_count DESC";
+		query = "SELECT a.customerId AS current_customer_id, b.customerId AS other_customer_id, COUNT(*) AS shared_recipe_count FROM store_db.favourites AS b JOIN store_db.favourites AS a ON a.recipeId = b.recipeId AND a.customerId <> b.customerId WHERE a.customerId = '"
+				+ customerId + "' GROUP BY a.customerId, b.customerId ORDER BY a.customerId, shared_recipe_count DESC;";
 
 		Statement st = getConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = st.executeQuery(query);
@@ -788,6 +597,7 @@ public class SQLManager {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			LogFileManager.logError(e.getMessage() + "(" + query + " )");
 		}
 	}
 }
